@@ -14,10 +14,10 @@
 			<input id="width" placeholder="width" /><input id="height" placeholder="height" />
 			<script>
 				/*
-					- Renforcer le system de templates.
 					- Ajouter la possibilite de faire mouvoir les objets.
 				*/
-				function		clone( o )
+Object.prototype.clone =
+				function		std_Object_clone( o )
 				{
 					var			n_o = Object.create(Object.getPrototypeOf(o));
 					var			propNames = Object.getOwnPropertyNames(o);
@@ -32,6 +32,21 @@
 
 					return (n_o);
 				}
+Object.prototype.implement =
+				function		std_Object_implement( r_obj )
+				{
+					for (var attr in r_obj)
+						if (r_obj.hasOwnProperty(attr))
+							this[attr] = r_obj[attr];
+					
+					return (this);
+				};
+Object.prototype.properties =
+				function		std_Object_properties(  )
+				{
+					return (Object.getOwnPropertyNames(this));
+				};
+				
 				var				NS = {
 					'html'		:'http://www.w3.org/1999/xhtml',
 					'svg'		:'http://www.w3.org/2000/svg'
@@ -41,9 +56,11 @@
 					'circle'	:{'tag':'circle','fill':null,'stroke':null,'cx':null,'cy':null,'r':null},
 					'line'		:{'tag':'line','stroke':null,'x1':null,'y1':null,'x2':null,'y2':null},
 				};
-				var				templates = Object.getOwnPropertyNames(shapes);
-				templates["onchange"] = 'javascript:var t=this.parentNode;t.innerHTML=\'\';addElements(NS[\'html\'],t,jsonParams(shapes[this.value],{\'tag\':templates}));';
-
+				var				templates = {
+					'tag'		:Object.getOwnPropertyNames(shapes)
+								.implement({'onchange':'javascript:var t=this.parentNode;t.innerHTML=\'\';addElements(NS[\'html\'],t,jsonParams(shapes[this.value],templates));'})
+				};
+				
 				function		draw()
 				{
 					canvas.innerHTML = "";
@@ -69,51 +86,57 @@
 
 				function		jsonParams( o, templates )
 				{
-					var			params = [];
+					var			params = [],
+								props = o.properties(),
+								l_props = props.length;
 
 					if (templates == undefined)
 						templates = {};
+
 					for (attr in o)
 					{
-						var		input = {},
-								templateAttr = templates[attr];
-
-						switch (typeof (templateAttr))
+						if (o.hasOwnProperty(attr))
 						{
-							case ("string"):
-								input = {'tag':'input','name':attr,'placeholder':attr,'type':templateAttr};
-								break;
-							case ("object"):
-								{
-									if (templateAttr.constructor == Array)
+							var		input = {},
+									templateAttr = templates[attr];
+
+							switch (typeof (templateAttr))
+							{
+								case ("string"):
+									input = {'tag':'input','name':attr,'placeholder':attr,'type':templateAttr};
+									break;
+								case ("object"):
 									{
-										var	values = [];
-
-										input = {'tag':'select','name':attr};
-										for (k in templateAttr)
+										if (templateAttr.constructor == Array)
 										{
-											var	value = templateAttr[k];
+											var	values = [];
 
-											if (!isNaN(k) && k.length)
+											input = {'tag':'select','name':attr};
+											for (k in templateAttr)
 											{
-												if (o[attr] == value)
-													values.push({'tag':'option','value':value,'selected':'selected','child':[{'tag':'#text','value':value}]});
+												var	value = templateAttr[k];
+
+												if (!isNaN(k) && k.length)
+												{
+													if (o[attr] == value)
+														values.push({'tag':'option','value':value,'selected':'selected','child':[{'tag':'#text','value':value}]});
+													else
+														values.push({'tag':'option','value':value,'child':[{'tag':'#text','value':value}]});
+												}
 												else
-													values.push({'tag':'option','value':value,'child':[{'tag':'#text','value':value}]});
+													input[k] = value;
 											}
-											else
-												input[k] = value;
+											input['child'] = values;
 										}
-										input['child'] = values;
-									}
-								};
-								break;
-							default:
-								input = {'tag':'input','name':attr,'placeholder':attr};
-								break;
-						};
-						input.value = o[attr] || "";
-						params.push(input);
+									};
+									break;
+								default:
+									input = {'tag':'input','name':attr,'placeholder':attr};
+									break;
+							};
+							input.value = o[attr] || "";
+							params.push(input);
+						}
 					}
 
 					return (params);
@@ -135,7 +158,18 @@
 
 				function		addShape( parent )
 				{
-					addElements(NS["html"], parent, [{'tag':'br'},{'tag':'span','class':'params','child':jsonParams(shapes[templates[0]], {'tag':templates})}]);
+					addElements(NS["html"], parent, 
+						[
+							{'tag':'br'},
+							{'tag':'div',/*'style':'border:2px solid black',*/'child':
+								[
+									{'tag':'span','class':'params','child':jsonParams(shapes[templates.tag[0]],templates)},
+									//~ {'tag':'br'},
+									//~ {'tag':'label','child':[{'tag':'#text','value':'Motion'}]},
+									//~ {'tag':'input','type':'checkbox','onchange':'Javascript:(this.checked)?addElements(NS[\'html\'],this.parentNode,):this.parentNode.getElementsByClassName(\'\');'},
+								]
+							},
+						]);
 				}
 
 				function		addElements( ns, parent, elems )
