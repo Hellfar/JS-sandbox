@@ -13,9 +13,6 @@
 			<input type="button" value="draw" onclick="javascript:draw();" />
 			<input id="width" placeholder="width" /><input id="height" placeholder="height" />
 			<script>
-				/*
-					- Ajouter la possibilite de faire mouvoir les objets.
-				*/
 Object.prototype.clone =
 				function		std_Object_clone( o )
 				{
@@ -72,16 +69,39 @@ Object.prototype.properties =
 					};
 
 					{
-						var		paramsPool = document.getElementsByClassName('params'),
+						var		paramsPool = document.getElementsByClassName('shape'),
 								l_paramsPool = paramsPool.length;
 
 						for (var i = 0; i < l_paramsPool; i++)
 						{
-							var	params = paramsJson(paramsPool[i].childNodes);
+							var	params = Array.prototype.slice.call(paramsPool[i].getElementsByClassName('param')),
+								motions = Array.prototype.slice.call(paramsPool[i].getElementsByClassName('motion')),
+								l_motions = motions.length;
 
-							addElements(NS["svg"], canvas, [params]);
+							if (params.length)
+								params = paramsJson(params[0].childNodes);
+							else
+								params = {};
+							motions = motions.map(function(e){return (paramsJson(e.childNodes).implement({'tag':'animate','attributeType':'XML','fill':'freeze'}));});
+							addElements(NS["svg"], canvas, [params.implement({'child':motions})]);
 						}
 					};
+				}
+
+				function		addShape( parent )
+				{
+					addElements(NS["html"], parent, 
+						[
+							{'tag':'br'},
+							{'tag':'div','class':'shape','style':'border:2px solid black','child':
+								[
+									{'tag':'span','class':'param','child':jsonParams(shapes[templates.tag[0]],templates)},
+									{'tag':'br'},
+									{'tag':'label','child':[{'tag':'#text','value':'Motion'}]},
+									{'tag':'input','type':'checkbox','onchange':'Javascript:var parent=this.parentNode;if(this.checked)addElements(NS[\'html\'],parent,[{\'tag\':\'div\',\'class\':\'motionWork\',\'child\':[{\'tag\':\'input\',\'type\':\'button\',\'value\':\'add Motion\',\'onclick\':\'Javascript:addElements(NS[\\\'html\\\'],this.parentNode,[{\\\'tag\\\':\\\'span\\\',\\\'class\\\':\\\'motion\\\',\\\'child\\\':jsonParams({\\\'attributeName\\\':null,\\\'from\\\':null,\\\'to\\\':null,\\\'dur\\\':null,\\\'repeatCount\\\':\\\'indefinite\\\'})}]);addElements(NS[\\\'html\\\'],this.parentNode,[{\\\'tag\\\':\\\'br\\\'}]);\'},{\'tag\':\'br\'}]}]);else parent.removeChild(parent.getElementsByClassName(\'motionWork\')[0]);'},
+								]
+							},
+						]);
 				}
 
 				function		jsonParams( o, templates )
@@ -113,19 +133,20 @@ Object.prototype.properties =
 
 											input = {'tag':'select','name':attr};
 											for (k in templateAttr)
-											{
-												var	value = templateAttr[k];
-
-												if (!isNaN(k) && k.length)
+												if (templateAttr.hasOwnProperty(k))
 												{
-													if (o[attr] == value)
-														values.push({'tag':'option','value':value,'selected':'selected','child':[{'tag':'#text','value':value}]});
+													var	value = templateAttr[k];
+
+													if (!isNaN(k) && k.length)
+													{
+														if (o[attr] == value)
+															values.push({'tag':'option','value':value,'selected':'selected','child':[{'tag':'#text','value':value}]});
+														else
+															values.push({'tag':'option','value':value,'child':[{'tag':'#text','value':value}]});
+													}
 													else
-														values.push({'tag':'option','value':value,'child':[{'tag':'#text','value':value}]});
+														input[k] = value;
 												}
-												else
-													input[k] = value;
-											}
 											input['child'] = values;
 										}
 									};
@@ -156,22 +177,6 @@ Object.prototype.properties =
 					return (element);
 				}
 
-				function		addShape( parent )
-				{
-					addElements(NS["html"], parent, 
-						[
-							{'tag':'br'},
-							{'tag':'div',/*'style':'border:2px solid black',*/'child':
-								[
-									{'tag':'span','class':'params','child':jsonParams(shapes[templates.tag[0]],templates)},
-									//~ {'tag':'br'},
-									//~ {'tag':'label','child':[{'tag':'#text','value':'Motion'}]},
-									//~ {'tag':'input','type':'checkbox','onchange':'Javascript:(this.checked)?addElements(NS[\'html\'],this.parentNode,):this.parentNode.getElementsByClassName(\'\');'},
-								]
-							},
-						]);
-				}
-
 				function		addElements( ns, parent, elems )
 				{
 					var			l_elems = elems.length,
@@ -193,7 +198,7 @@ Object.prototype.properties =
 								addElements(ns, o, elem.child);
 							delete (elem.child);
 							for (attr in elem)
-								if (elem[attr])
+								if (elem.hasOwnProperty(attr) && elem[attr])
 									o.setAttributeNS(null, attr, elem[attr]);
 						}
 						parent.appendChild(o);
