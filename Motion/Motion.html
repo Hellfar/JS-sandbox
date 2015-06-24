@@ -14,10 +14,10 @@
 			<input id="width" placeholder="width" /><input id="height" placeholder="height" />
 			<script>
 Object.prototype.clone =
-				function		std_Object_clone( o )
+				function			std_Object_clone( o )
 				{
-					var			n_o = Object.create(Object.getPrototypeOf(o));
-					var			propNames = Object.getOwnPropertyNames(o);
+					var				n_o = Object.create(Object.getPrototypeOf(o));
+					var				propNames = Object.getOwnPropertyNames(o);
 
 					propNames.forEach(
 						function(name)
@@ -28,9 +28,9 @@ Object.prototype.clone =
 					);
 
 					return (n_o);
-				}
+				};
 Object.prototype.implement =
-				function		std_Object_implement( r_obj )
+				function			std_Object_implement( r_obj )
 				{
 					for (var attr in r_obj)
 						if (r_obj.hasOwnProperty(attr))
@@ -39,26 +39,126 @@ Object.prototype.implement =
 					return (this);
 				};
 Object.prototype.properties =
-				function		std_Object_properties(  )
+				function			std_Object_properties(  )
 				{
 					return (Object.getOwnPropertyNames(this));
 				};
+Text.prototype.toString =
+				function			std_Text_toString(  )
+				{
+					return (this.textContent);
+				}
+Element.prototype.toString =
+				function			std_HTMLElement_toString(  )
+				{
+					var				ret = '<' + this.tagName + ' ',
+									attrs = this.attributes,
+									l_attrs = attrs.length;
+
+					for (var i = 0; i < l_attrs; i++)
+						ret += attrs[i].name +'="'+ (attrs[i].value +'').replace('&', '&amp;').replace('"', '&quot;') + '" ';
+					ret += '>';
+					if(typeof (this.childNodes) == 'string')
+						ret += this.childNodes.replace('&', '&amp;').replace('<', '&lt;');
+					else
+					{
+						Array.prototype.slice.call(this.childNodes).forEach(
+						function ( e )
+						{
+							ret += e.toString();
+						});
+					}
+					ret += '</' + this.tagName + '>';
+
+					return ret;
+				};
+Element.prototype.appendChilds =
+				function			HTMLElement_appendChilds( a_childs )
+				{
+					var				l_a_childs = a_childs.length;
+
+					for (var i = 0; i < l_a_childs; i++)
+						this.appendChild(a_childs[i]);
+
+					return (this);
+				};
+
+				var					NS = {
+					'html'			:'http://www.w3.org/1999/xhtml',
+					'svg'			:'http://www.w3.org/2000/svg'
+				};
+				var					shapes = {
+					'rect'			:{'tag':'rect','fill':null,'stroke':null,'x':null,'y':null,'width':null,'height':null,'rx':null,'ry':null},
+					'circle'		:{'tag':'circle','fill':null,'stroke':null,'cx':null,'cy':null,'r':null},
+					'line'			:{'tag':'line','stroke':null,'x1':null,'y1':null,'x2':null,'y2':null},
+				};
+				var					templates = {
+					'tag'			:Object.getOwnPropertyNames(shapes)
+									.implement({'onchange':'javascript:var t=this.parentNode;t.innerHTML=\'\';addElements(NS[\'html\'],t,jsonParams(shapes[this.value],templates));'})
+				};
 				
-				var				NS = {
-					'html'		:'http://www.w3.org/1999/xhtml',
-					'svg'		:'http://www.w3.org/2000/svg'
-				};
-				var				shapes = {
-					'rect'		:{'tag':'rect','fill':null,'stroke':null,'x':null,'y':null,'width':null,'height':null,'rx':null,'ry':null},
-					'circle'	:{'tag':'circle','fill':null,'stroke':null,'cx':null,'cy':null,'r':null},
-					'line'		:{'tag':'line','stroke':null,'x1':null,'y1':null,'x2':null,'y2':null},
-				};
-				var				templates = {
-					'tag'		:Object.getOwnPropertyNames(shapes)
-								.implement({'onchange':'javascript:var t=this.parentNode;t.innerHTML=\'\';addElements(NS[\'html\'],t,jsonParams(shapes[this.value],templates));'})
-				};
-				
-				function		draw()
+				function			svgImage( xml )
+				{
+					var				image = new Image();
+
+					image.onload = function()
+					{
+						var canvas = document.createElement('canvas');
+
+						canvas.width = image.width;
+						canvas.height = image.height;
+						var context = canvas.getContext('2d');
+						console.log(context.drawImage);
+						(function()
+						{
+							try
+							{
+								context.drawImage(image, 0, 0);
+							}
+							catch (e)
+							{
+								if (e.name == "NS_ERROR_NOT_AVAILABLE")
+								{
+									// Wait a bit before trying again; you may wish to change the
+									// length of this delay.
+									setTimeout(arguments.callee, 100);
+								}
+							}
+						})();
+
+						var a = document.createElement('a');
+						var name = prompt("Name for the png file :");
+
+						a.download = ((name) ? name : "image") +".png";
+						a.href = canvas.toDataURL('image/png');
+						document.body.appendChild(a);
+						a.click();
+					};
+					image.src = 'data:image/svg+xml;base64,'+ window.btoa(unescape(encodeURIComponent(xml)));
+				}
+				function				exportToSave(  )
+				{
+					var svg = ("<?xml version=\"1.0\" standalone=\"no\"?><!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">"+ canvas.toString()).replace(/>/g, ">\n");
+
+					if (false)
+						svgImage(svg);
+					else
+						window.open('data:text/svg;charset=utf-8,'+ escape(svg));
+				}
+				document.addEventListener(
+					"keydown",
+					function(e)
+					{
+						if (e.keyCode == 83 && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey))
+						{
+							e.preventDefault();
+							//your implementation or function calls
+							exportToSave();
+						}
+					},
+					false);
+
+				function			draw(  )
 				{
 					canvas.innerHTML = "";
 					{
@@ -69,26 +169,26 @@ Object.prototype.properties =
 					};
 
 					{
-						var		paramsPool = document.getElementsByClassName('shape'),
-								l_paramsPool = paramsPool.length;
+						var			paramsPool = document.getElementsByClassName('shape'),
+									l_paramsPool = paramsPool.length;
 
 						for (var i = 0; i < l_paramsPool; i++)
 						{
-							var	params = Array.prototype.slice.call(paramsPool[i].getElementsByClassName('param')),
-								motions = Array.prototype.slice.call(paramsPool[i].getElementsByClassName('motion')),
-								l_motions = motions.length;
+							var		params = Array.prototype.slice.call(paramsPool[i].getElementsByClassName('param')),
+									motions = Array.prototype.slice.call(paramsPool[i].getElementsByClassName('motion')),
+									l_motions = motions.length;
 
 							if (params.length)
 								params = paramsJson(params[0].childNodes);
 							else
 								params = {};
 							motions = motions.map(function(e){return (paramsJson(e.childNodes).implement({'tag':'animate','attributeType':'XML','fill':'freeze'}));});
-							addElements(NS["svg"], canvas, [params.implement({'child':motions})]);
+							addElements(NS["svg"], canvas, params.implement({'child':motions}));
 						}
 					};
 				}
 
-				function		addShape( parent )
+				function			addShape( parent )
 				{
 					addElements(NS["html"], parent, 
 						[
@@ -97,18 +197,18 @@ Object.prototype.properties =
 								[
 									{'tag':'span','class':'param','child':jsonParams(shapes[templates.tag[0]],templates)},
 									{'tag':'br'},
-									{'tag':'label','child':[{'tag':'#text','value':'Motion'}]},
-									{'tag':'input','type':'checkbox','onchange':'Javascript:var parent=this.parentNode;if(this.checked)addElements(NS[\'html\'],parent,[{\'tag\':\'div\',\'class\':\'motionWork\',\'child\':[{\'tag\':\'input\',\'type\':\'button\',\'value\':\'add Motion\',\'onclick\':\'Javascript:addElements(NS[\\\'html\\\'],this.parentNode,[{\\\'tag\\\':\\\'span\\\',\\\'class\\\':\\\'motion\\\',\\\'child\\\':jsonParams({\\\'attributeName\\\':null,\\\'from\\\':null,\\\'to\\\':null,\\\'dur\\\':null,\\\'repeatCount\\\':\\\'indefinite\\\'})}]);addElements(NS[\\\'html\\\'],this.parentNode,[{\\\'tag\\\':\\\'br\\\'}]);\'},{\'tag\':\'br\'}]}]);else parent.removeChild(parent.getElementsByClassName(\'motionWork\')[0]);'},
+									{'tag':'label','child':'Motion'},
+									{'tag':'input','type':'checkbox','onchange':'Javascript:var parent=this.parentNode;if(this.checked)addElements(NS[\'html\'],parent,[{\'tag\':\'div\',\'class\':\'motionWork\',\'child\':[{\'tag\':\'input\',\'type\':\'button\',\'value\':\'add Motion\',\'onclick\':\'Javascript:addElements(NS[\\\'html\\\'],this.parentNode,{\\\'tag\\\':\\\'span\\\',\\\'class\\\':\\\'motion\\\',\\\'child\\\':jsonParams({\\\'attributeName\\\':null,\\\'from\\\':null,\\\'to\\\':null,\\\'dur\\\':null,\\\'repeatCount\\\':\\\'indefinite\\\'})});addElements(NS[\\\'html\\\'],this.parentNode,{\\\'tag\\\':\\\'br\\\'});\'},{\'tag\':\'br\'}]}]);else parent.removeChild(parent.getElementsByClassName(\'motionWork\')[0]);'},
 								]
 							},
 						]);
 				}
 
-				function		jsonParams( o, templates )
+				function			jsonParams( o, templates )
 				{
-					var			params = [],
-								props = o.properties(),
-								l_props = props.length;
+					var				params = [],
+									props = o.properties(),
+									l_props = props.length;
 
 					if (templates == undefined)
 						templates = {};
@@ -140,9 +240,9 @@ Object.prototype.properties =
 													if (!isNaN(k) && k.length)
 													{
 														if (o[attr] == value)
-															values.push({'tag':'option','value':value,'selected':'selected','child':[{'tag':'#text','value':value}]});
+															values.push({'tag':'option','value':value,'selected':'selected','child':value});
 														else
-															values.push({'tag':'option','value':value,'child':[{'tag':'#text','value':value}]});
+															values.push({'tag':'option','value':value,'child':value});
 													}
 													else
 														input[k] = value;
@@ -162,14 +262,14 @@ Object.prototype.properties =
 
 					return (params);
 				}
-				function		paramsJson( params )
+				function			paramsJson( params )
 				{
-					var			element = {},
-								l_params = params.length;
+					var				element = {},
+									l_params = params.length;
 
 					for (var i = 0; i < l_params; i++)
 					{
-						var		param = params[i];
+						var			param = params[i];
 
 						element[param.name] = param.value || null;
 					}
@@ -177,48 +277,67 @@ Object.prototype.properties =
 					return (element);
 				}
 
-				function		addElements( ns, parent, elems )
+				function			addElements( ns, parent, elems )
 				{
-					var			l_elems = elems.length,
-								a_o = [];
+					var				a_o = [];
 
-					for (var i = 0; i < l_elems; i++)
+					switch (typeof(elems))
 					{
-						var		elem = elems[i],
-								o;
-
-						if (elem.tag == "#text")
-							o = document.createTextNode(elem.value);
-						else
+						case ("string"):
 						{
-							o = document.createElementNS(ns, elem.tag);
+							var		o = document.createTextNode(elems);
 
-							delete (elem.tag);
-							if (typeof (elem.child) != "undefined")
-								addElements(ns, o, elem.child);
-							delete (elem.child);
-							for (attr in elem)
-								if (elem.hasOwnProperty(attr) && elem[attr])
-									o.setAttributeNS(null, attr, elem[attr]);
-						}
-						parent.appendChild(o);
-						a_o.push(o);
+							parent.appendChild(o);
+							a_o.push(o);
+						};
+						break;
+						case ("object"):
+						{
+							var		l_elems;
+
+							if (elems.constructor != Array)
+								elems = [elems];
+							l_elems = elems.length;
+							for (var i = 0; i < l_elems; i++)
+							{
+								var	elem = elems[i],
+									o;
+
+								if (elem.tag == "#text")
+									o = document.createTextNode(elem.value);
+								else
+								{
+									o = document.createElementNS(ns, elem.tag);
+
+									delete (elem.tag);
+									if (typeof (elem.child) != "undefined")
+										addElements(ns, o, elem.child);
+									delete (elem.child);
+									for (attr in elem)
+										if (elem.hasOwnProperty(attr) && elem[attr])
+											o.setAttributeNS(null, attr, elem[attr]);
+								}
+								parent.appendChild(o);
+								a_o.push(o);
+							}
+						};
+						break;
 					}
 
 					return (a_o);
 				}
-				function		getElements( parent )
+				function			getElements( parent )
 				{
-					var			a_elements = [],
-								childs = parent.childNodes,
-								l_childs = childs.length;
+					var				a_elements = [],
+									childs = parent.childNodes,
+									l_childs = childs.length;
 
 					for (var i = 0; i < l_childs; i++)
 					{
-						var		input = childs[i],
-								attrs = input.attributes,
-								l_attrs = attrs.length,
-								elem = {'tag':input.nodeName};
+						var			input = childs[i],
+									attrs = input.attributes,
+									l_attrs = attrs.length,
+									elem = {'tag':input.nodeName};
 
 						for (var e = 0; e < l_attrs; e++)
 							elem[attrs[e].name] = attrs[e].value;
@@ -226,17 +345,6 @@ Object.prototype.properties =
 					}
 					
 					return (a_elements);
-				}
-
-HTMLElement.prototype.appendChilds =
-				function		HTMLElement_appendChilds( a_childs )
-				{
-					var			l_a_childs = a_childs.length;
-
-					for (var i = 0; i < l_a_childs; i++)
-						this.appendChild(a_childs[i]);
-
-					return (this);
 				}
 			</script>
 		</div>
