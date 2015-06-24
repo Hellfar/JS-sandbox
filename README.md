@@ -1,7 +1,5 @@
-# Motion
-
-Draw shapes (in short future makes this shapes move)
+# JS sandbox
 
 (Works fine on Firefox.38 and Opera.29, don't know about the others)
 
-Project type: JS sandbox
+Project type: This projects are not usefull or crazy, that just represents testing JS features to determine my own needs for a JS library.

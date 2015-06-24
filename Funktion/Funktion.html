@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="fr" lang="fr" dir="ltr">
+	<head>
+		<meta charset="UTF-8" >
+		<title>Funktion</title>
+	</head>
+	<body>
+		<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" id="canvas" >
+		</svg>
+		<div id="workspace" >
+			<input type="button" value="add a function" onclick="javascript:newFunction();" />
+			<input type="button" value="refresh and draw" onclick="javascript:refreshPoints();draw();" />
+			<input id="width" placeholder="width" /><input id="height" placeholder="height" />
+			<input id="rate_x" placeholder="rate:x" /><input id="rate_y" placeholder="rate:y" />
+			<input id="beac_x" placeholder="beac:x" /><input id="beac_y" placeholder="beac:y" />
+			<script>
+				/*
+					- Faire les options pour tracer les fonctions (addition de fonction, expression de fonction, tracage considerant les points comme approximatif (command Q), etc...)
+				*/
+				var			NS = {
+								'html':'http://www.w3.org/1999/xhtml',
+								'svg':'http://www.w3.org/2000/svg'
+							},
+							defColour = 'red',
+							functions = [];
+				
+				function	draw()
+				{
+					canvas.innerHTML = "";
+					{
+						if (!isNaN(width.value) && width.value.length)
+							canvas.setAttributeNS(null, 'width', width.value);
+						if (!isNaN(height.value) && height.value.length)
+							canvas.setAttributeNS(null, 'height', height.value);
+					};
+					var		l_functions = functions.length;
+					
+					for (var i = 0; i < l_functions; i++)
+					{
+						var	points = functions[i],
+							l_points = points.length,
+							t_point = null,
+							s_path = "";
+						
+						for (var e = 0; e < l_points; e++)
+						{
+							var	point = points[e];
+
+							pointReffered(point, {'rate_x':rate_x.value,'rate_y':rate_y.value,'beac_x':beac_x.value,'beac_y':beac_y.value});
+
+							addElements(NS['svg'], canvas, [{'tag':'circle','r':'2','cx':point[0],'cy':point[1]}]);
+							
+							if (t_point)
+								s_path +=	" C"+
+											((point[0] - t_point[0]) / 2 + ~~t_point[0]) +","+ t_point[1] +" "+
+											((point[0] - t_point[0]) / 2 + ~~t_point[0]) +","+ point[1] +" ";
+							else
+								s_path += "M";
+							s_path += point.toString();
+							t_point = point;
+						}
+						//~ console.log(s_path);
+						addElements(NS['svg'], canvas, [{'tag':'path','stroke':points.colour,'stroke-width':'1','fill':'none','d':s_path}]);
+					}
+				}
+
+				function	pointReffered( point, ref )
+				{
+					var		rate_x = (typeof (ref.rate_x) != "undefined") ? ref.rate_x : "",
+							rate_y = (typeof (ref.rate_y) != "undefined") ? ref.rate_y : "",
+							beac_x = (typeof (ref.beac_x) != "undefined") ? ref.beac_x : "",
+							beac_y = (typeof (ref.beac_y) != "undefined") ? ref.beac_y : "";
+					
+					{
+						if (!isNaN(rate_x) && rate_x.length)
+							point[0] = point[0] * rate_x;
+						if (!isNaN(rate_y) && rate_y.length)
+							point[1] = point[1] * rate_y;
+					};
+					{
+						if (!isNaN(beac_x) && beac_x.length)
+							point[0] = (point[0] + beac_x) * ((beac_x < 0) ? -1 : 1);
+						if (!isNaN(beac_y) && beac_y.length)
+							point[1] = (point[1] + beac_y) * ((beac_y < 0) ? -1 : 1);
+					};
+				}
+
+				function	refreshPoints()
+				{
+					var		funs = workspace.getElementsByClassName('function'),
+							l_funs = funs.length;
+					
+					functions = [];
+					for (var i = 0; i < l_funs; i++)
+					{
+						var	pointEntries = funs[i].getElementsByClassName('point'),
+							l_pointEntries = pointEntries.length;
+						
+						var	points = [];
+						for (var e = 0; e < l_pointEntries; e++)
+						{
+							var	inputs = pointEntries[e].getElementsByTagName('input'),
+								pointEntry = [inputs[0].value, inputs[1].value];
+							
+							if ((!isNaN(pointEntry[0]) && pointEntry[0].length) && (!isNaN(pointEntry[1]) && pointEntry[1].length))
+								points.push(pointEntry);
+						}
+						points.colour = funs[i].getElementsByClassName('colour')[0].value;
+						if (!(points.colour.length))
+							points.colour = defColour;
+						functions.push(points);
+					}
+				}
+				
+				function	newFunction()
+				{
+					addElements(NS['html'], workspace, [
+						{'tag':'div','class':'function','child':[
+							{'tag':'input','type':'button','value':'add a point','onclick':'javascript:newPoint(this.parentNode);'},
+							{'tag':'input','class':'colour','placeholder':'colour'}
+						]}
+					]);
+				}
+				
+				function	newPoint( fun )
+				{
+					addElements(NS['html'], fun, [{'tag':'br'},{'tag':'span','class':'point','child':[{'tag':'input','placeholder':'x'},{'tag':'input','placeholder':'y'}]}]);
+				}
+				
+				function	addElements( ns, parent, elems )
+				{
+					var		l_elems = elems.length;
+					
+					for (var i = 0; i < l_elems; i++)
+					{
+						var	elem = elems[i],
+							o = document.createElementNS(ns, elem.tag);
+						
+						delete (elem.tag);
+						if (typeof (elem.child) != "undefined")
+							addElements(ns, o, elem.child);
+						delete (elem.child);
+						for (attr in elem)
+							o.setAttributeNS(null, attr, elem[attr]);
+						parent.appendChild(o);
+					}
+				}
+			</script>
+		</div>
+	</body>
+</html>
