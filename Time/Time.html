@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta charset="UTF-8" >
+		<title>Badge Time</title>
+	</head>
+	<body>
+		<div id="workspace" >
+			<div id="output" ></div>
+			<input type="button" value="add a pass" onclick="Javascript:addElements(NS['html'], entries, [{'tag':'br'},{'tag':'input','placeholder':'new tick'}]);" /><input type="button" value="calc" onclick="Javascript:calc();" />
+			<input id="due_Hour" placeholder="due hours amount" value="7" /><input type="time" id="bound_morning" placeholder="bound.morning" value="8:15" /><input type="time" id="bound_evening" placeholder="bound.evening" value="18:35" />
+			<div id="entries" ></div>
+			<script>
+				var				NS = {
+					'html'		:'http://www.w3.org/1999/xhtml',
+					'svg'		:'http://www.w3.org/2000/svg'
+				};
+
+				function		calc()
+				{
+					output.innerHTML = "";
+					{
+						var		inputs = Array.prototype.slice.call(entries.getElementsByTagName('input')).filter(e=>e.value.length?true:false),
+								l_inputs = inputs.length,
+								tmp_ante = null,
+								bndmrnng = timeToNbr(bound_morning.value),
+								bndvnng = timeToNbr(bound_evening.value),
+								dHr = timeToNbr(due_Hour.value),
+								result = 0;
+						
+						for (var i = 0; i < l_inputs; i++)
+						{
+							var	value = timeToNbr(inputs[i].value);
+
+							if (tmp_ante == null)
+								tmp_ante = value < bndmrnng ? bndmrnng : value;
+							else if (inputs[i].value != "")
+							{
+								result += (value > bndvnng ? bndvnng : value) - tmp_ante;
+								tmp_ante = null;
+							}
+						}
+						
+						addElements(NS['html'], output,
+						[
+							{'tag':'#text','value':nbrToTime(dHr) +' = '+ nbrToTime(result) +' + '+ nbrToTime(dHr - result)},
+							{'tag':'br'},
+							{'tag':'span','style':((dHr < result) ? "color:blue;" : (dHr == result) ? "color:green;" : "color:red;"),'child':[{'tag':'#text','value':((dHr < result) ? "positive" : (dHr == result) ? "equal" : "negative") + ((inputs.length % 2) ? " and parity problem" : "") +"."}]},
+						]);
+					};
+				}
+				function		timeToNbr( time )
+				{
+					var			a_time = time.split(':').filter(e=>e.length?true:false);
+					
+					switch (a_time.length)
+					{
+						case (0):
+							return (0);
+						case (1):
+							return (parseFloat(a_time[0]) * 3600 || 0);
+						case (2):
+							return ((parseFloat(a_time[0]) * 3600 || 0) + (parseFloat(a_time[1]) * 60 || 0));
+						case (3):
+							return ((parseFloat(a_time[0]) * 3600 || 0) + (parseFloat(a_time[1]) * 60 || 0) + (parseFloat(a_time[2]) || 0));
+						default:
+							return ((parseFloat(a_time[0]) * 3600 || 0) + (parseFloat(a_time[1]) * 60 || 0));
+					}
+				}
+				function		nbrToTime( time )
+				{
+					var			hours,
+								minutes,
+								secondes,
+								s_time = "";
+
+					hours = time / 3600;
+					if (hours > 0)
+						hours = Math.floor(hours);
+					else
+						hours = Math.ceil(hours);
+					minutes = (time - (hours * 3600)) / 60;
+					if (minutes > 0)
+						minutes = Math.floor(minutes);
+					else
+						minutes = Math.ceil(minutes);
+					secondes = time - (hours * 3600) - (minutes * 60);
+					if (secondes > 0)
+						secondes = Math.floor(secondes);
+					else
+						secondes = Math.ceil(secondes);
+
+					s_time += hours;
+					if (minutes != 0)
+					{
+						s_time += ":"+ Math.abs(minutes);
+						if (secondes != 0)
+							s_time += ":"+ Math.abs(secondes);
+					}
+
+					return (((minutes < 0 || secondes < 0) ? "-" : "") + s_time);
+				}
+
+				function		addElements( ns, parent, elems )
+				{
+					var			l_elems = elems.length,
+								a_o = [];
+
+					for (var i = 0; i < l_elems; i++)
+					{
+						var		elem = elems[i],
+								o;
+
+						if (elem.tag == "#text")
+							o = document.createTextNode(elem.value);
+						else
+						{
+							o = document.createElementNS(ns, elem.tag);
+
+							delete (elem.tag);
+							if (typeof (elem.child) != "undefined")
+								addElements(ns, o, elem.child);
+							delete (elem.child);
+							for (attr in elem)
+								if (elem[attr])
+									o.setAttributeNS(null, attr, elem[attr]);
+						}
+						parent.appendChild(o);
+						a_o.push(o);
+					}
+
+					return (a_o);
+				}
+			</script>
+		</div>
+	</body>
+</html>

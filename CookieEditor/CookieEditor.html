@@ -1,0 +1,316 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta charset="UTF-8" >
+		<title>CookieEditor</title>
+	</head>
+	<body>
+		<div id="workspace" >
+			<input type="button" value="add a cookie" onclick="Javascript:printCookie(entries)" />
+			<input type="button" value="push" onclick="Javascript:saveCookies(entries)" />
+			<div id="entries" ></div>
+			<script>
+Object.prototype.clone =
+				function			std_Object_clone( o )
+				{
+					var				n_o = Object.create(Object.getPrototypeOf(o));
+					var				propNames = Object.getOwnPropertyNames(o);
+
+					propNames.forEach(
+						function(name)
+						{
+							var desc = Object.getOwnPropertyDescriptor(o, name);
+							Object.defineProperty(n_o, name, desc);
+						}
+					);
+
+					return (n_o);
+				};
+Object.prototype.implement =
+				function			std_Object_implement( r_obj )
+				{
+					for (var attr in r_obj)
+						if (r_obj.hasOwnProperty(attr))
+							this[attr] = r_obj[attr];
+					
+					return (this);
+				};
+Object.prototype.properties =
+				function			std_Object_properties(  )
+				{
+					return (Object.getOwnPropertyNames(this));
+				};
+Text.prototype.toString =
+				function			std_Text_toString(  )
+				{
+					return (this.textContent);
+				};
+Element.prototype.toString =
+				function			std_HTMLElement_toString(  )
+				{
+					var				ret = '<' + this.tagName + ' ',
+									attrs = this.attributes,
+									l_attrs = attrs.length;
+
+					for (var i = 0; i < l_attrs; i++)
+						ret += attrs[i].name +'="'+ (attrs[i].value +'').replace('&', '&amp;').replace('"', '&quot;') + '" ';
+					ret += '>';
+					if(typeof (this.childNodes) == 'string')
+						ret += this.childNodes.replace('&', '&amp;').replace('<', '&lt;');
+					else
+					{
+						Array.prototype.slice.call(this.childNodes).forEach(
+						function ( e )
+						{
+							ret += e.toString();
+						});
+					}
+					ret += '</' + this.tagName + '>';
+
+					return ret;
+				};
+Element.prototype.appendChilds =
+				function			HTMLElement_appendChilds( a_childs )
+				{
+					var				l_a_childs = a_childs.length;
+
+					for (var i = 0; i < l_a_childs; i++)
+						this.appendChild(a_childs[i]);
+
+					return (this);
+				};
+
+				var docCookies = {
+					getItem: function (sKey) {
+						if (!sKey) { return null; }
+						return decodeURIComponent(document.cookie.replace(new RegExp("(?:(?:^|.*;)\\s*" + encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=\\s*([^;]*).*$)|^.*$"), "$1")) || null;
+					},
+					setItem: function (sKey, sValue, vEnd, sPath, sDomain, bSecure) {
+						if (!sKey || /^(?:expires|max\-age|path|domain|secure)$/i.test(sKey)) { return false; }
+						var sExpires = "";
+						if (vEnd) {
+							switch (vEnd.constructor) {
+								case Number:
+									sExpires = vEnd === Infinity ? "; expires=Fri, 31 Dec 9999 23:59:59 GMT" : "; max-age=" + vEnd;
+									break;
+								case String:
+									sExpires = "; expires=" + vEnd;
+									break;
+								case Date:
+									sExpires = "; expires=" + vEnd.toUTCString();
+									break;
+							}
+						}
+						document.cookie = encodeURIComponent(sKey) + "=" + encodeURIComponent(sValue) + sExpires + (sDomain ? "; domain=" + sDomain : "") + (sPath ? "; path=" + sPath : "") + (bSecure ? "; secure" : "");
+						return true;
+					},
+					removeItem: function (sKey, sPath, sDomain) {
+						if (!this.hasItem(sKey)) { return false; }
+						document.cookie = encodeURIComponent(sKey) + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT" + (sDomain ? "; domain=" + sDomain : "") + (sPath ? "; path=" + sPath : "");
+						return true;
+					},
+					hasItem: function (sKey) {
+						if (!sKey) { return false; }
+						return (new RegExp("(?:^|;\\s*)" + encodeURIComponent(sKey).replace(/[\-\.\+\*]/g, "\\$&") + "\\s*\\=")).test(document.cookie);
+					},
+					keys: function () {
+						var aKeys = document.cookie.replace(/((?:^|\s*;)[^\=]+)(?=;|$)|^\s*|\s*(?:\=[^;]*)?(?:\1|$)/g, "").split(/\s*(?:\=[^;]*)?;\s*/);
+						if (!(document.cookie)) return ([]);
+						for (var nLen = aKeys.length, nIdx = 0; nIdx < nLen; nIdx++) { aKeys[nIdx] = decodeURIComponent(aKeys[nIdx]); }
+						return aKeys;
+					}
+				};
+				
+				var					NS = {
+					'html'			:'http://www.w3.org/1999/xhtml',
+					'svg'			:'http://www.w3.org/2000/svg'
+				};
+
+				function			jsonParams( o, templates )
+				{
+					var				params = [],
+									props = o.properties(),
+									l_props = props.length;
+
+					if (templates == undefined)
+						templates = {};
+
+					for (attr in o)
+					{
+						if (o.hasOwnProperty(attr))
+						{
+							var		input = {},
+									templateAttr = templates[attr];
+
+							switch (typeof (templateAttr))
+							{
+								case ("string"):
+									input = {'tag':'input','name':attr,'placeholder':attr,'type':templateAttr};
+									break;
+								case ("object"):
+									{
+										if (templateAttr.constructor == Array)
+										{
+											var	values = [];
+
+											input = {'tag':'select','name':attr};
+											for (k in templateAttr)
+												if (templateAttr.hasOwnProperty(k))
+												{
+													var	value = templateAttr[k];
+
+													if (!isNaN(k) && k.length)
+													{
+														if (o[attr] == value)
+															values.push({'tag':'option','value':value,'selected':'selected','child':value});
+														else
+															values.push({'tag':'option','value':value,'child':value});
+													}
+													else
+														input[k] = value;
+												}
+											input['child'] = values;
+										}
+									};
+									break;
+								default:
+									input = {'tag':'input','name':attr,'placeholder':attr};
+									break;
+							};
+							input.value = o[attr] || "";
+							params.push(input);
+						}
+					}
+
+					return (params);
+				}
+				function			paramsJson( params )
+				{
+					var				element = {},
+									l_params = params.length;
+
+					for (var i = 0; i < l_params; i++)
+					{
+						var			param = params[i];
+
+						element[param.name] = param.value || null;
+					}
+					
+					return (element);
+				}
+
+				function			addElements( ns, parent, elems )
+				{
+					var				a_o = [];
+
+					switch (typeof(elems))
+					{
+						case ("string"):
+						{
+							var		o = document.createTextNode(elems);
+
+							parent.appendChild(o);
+							a_o.push(o);
+						};
+						break;
+						case ("object"):
+						{
+							var		l_elems;
+
+							if (elems.constructor != Array)
+								elems = [elems];
+							l_elems = elems.length;
+							for (var i = 0; i < l_elems; i++)
+							{
+								var	elem = elems[i],
+									o;
+
+								if (elem.tag == "#text")
+									o = document.createTextNode(elem.value);
+								else
+								{
+									o = document.createElementNS(ns, elem.tag);
+
+									delete (elem.tag);
+									if (typeof (elem.child) != "undefined")
+										addElements(ns, o, elem.child);
+									delete (elem.child);
+									for (attr in elem)
+										if (elem.hasOwnProperty(attr) && elem[attr])
+											o.setAttributeNS(null, attr, elem[attr]);
+								}
+								parent.appendChild(o);
+								a_o.push(o);
+							}
+						};
+						break;
+					}
+
+					return (a_o);
+				}
+				function			getElements( parent )
+				{
+					var				a_elements = [],
+									childs = parent.childNodes,
+									l_childs = childs.length;
+
+					for (var i = 0; i < l_childs; i++)
+					{
+						var			input = childs[i],
+									attrs = input.attributes,
+									l_attrs = attrs.length,
+									elem = {'tag':input.nodeName};
+						if (input.nodeName == "INPUT" && input.value)
+							elem.value = input.value;
+						for (var e = 0; e < l_attrs; e++)
+							elem[attrs[e].name] = attrs[e].value;
+						a_elements.push(elem);
+						if (input.firstElementChild != null)
+							elem['child'] = getElements(input);
+					}
+					
+					return (a_elements);
+				}
+
+				function			printCookie( parent, name, value )
+				{
+					addElements(NS['html'], parent, {'tag':'span','child':[{'tag':'br'},{'tag':'input','placeholder':'name','value':name},{'tag':'input','placeholder':'value','value':value},{'tag':'input','type':'button','value':'remove','onclick':'Javascript:this.parentNode.parentNode.removeChild(this.parentNode);'}]});
+				}
+				function			printCurrentCookies( parent )
+				{
+					var				cookies = docCookies.keys(),
+									l_cookies = cookies.length;
+
+					for (var i = 0; i < l_cookies; i++)
+						printCookie(parent, cookies[i], docCookies.getItem(cookies[i]));
+				}
+				function			saveCookies( parent )
+				{
+					{
+						var			cookies = docCookies.keys(),
+									l_cookies = cookies.length;
+
+						for (var i = 0; i < l_cookies; i++)
+							docCookies.removeItem(cookies[i]);
+					};
+
+					{
+						var			cookies = getElements(parent),
+									l_cookies = cookies.length;
+
+						for (var i = 0; i < l_cookies; i++)
+						{
+							var		child = cookies[i]['child'];
+							
+							if (child[1].value && child[2].value)
+								docCookies.setItem(child[1].value, child[2].value);
+						}
+					};
+				}
+
+				printCurrentCookies(entries);
+			</script>
+		</div>
+	</body>
+</html>
