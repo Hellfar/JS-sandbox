@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Avoider</title>
+		<style>
+			.cell
+			{
+				position:absolute;
+				height:100px;
+				width:100px;
+				background-color:#eee;
+				border:1px solid black;
+				border-radius:15px;
+				text-align:center;
+			}
+		</style>
+		<script>
+document.event =
+			function		std_document_event( eventName, callback, prevent )
+			{
+				var			params = eventName.split(';');
+				function	tmp_fun( e )
+				{
+					var		b = false;
+					if (params.length > 1)
+					{
+						var		keys = params[1].split('+'),
+								l_keys = keys.length;
+
+						for (var i = 0; i < l_keys; i++)
+						{
+							b = false;
+							if (keys[i] == 'CTRL' && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey))
+								b = true;
+							else if (keys[i].match(/^[0-9]+$/) && (parseInt(keys[i], 10) == e.keyCode || parseInt(keys[i], 16) == e.keyCode))
+								b = true;
+							if (!b)
+								break;
+						}
+					}
+					else
+						b = true;
+					if (b)
+					{
+						if (prevent)
+							e.preventDefault();
+						callback(e);
+					}
+				}
+				document.addEventListener(params[0], tmp_fun, false);
+			}
+Element.prototype.event =
+			function		std_HTMLElement_event( eventName, callback, prevent )
+			{
+				var			params = eventName.split(';');
+				function	tmp_fun( e )
+				{
+					var		b = false;
+					if (params.length > 1)
+					{
+						var		keys = params[1].split('+'),
+								l_keys = keys.length;
+
+						for (var i = 0; i < l_keys; i++)
+						{
+							b = false;
+							if (keys[i] == 'CTRL' && (navigator.platform.match("Mac") ? e.metaKey : e.ctrlKey))
+								b = true;
+							else if (keys[i].match(/^[0-9]+$/) && (parseInt(keys[i], 10) == e.keyCode || parseInt(keys[i], 16) == e.keyCode))
+								b = true;
+							if (!b)
+								break;
+						}
+					}
+					else
+						b = true;
+					if (b)
+					{
+						if (prevent)
+							e.preventDefault();
+						callback(e);
+					}
+				}
+				this[eventName] = tmp_fun;
+			}
+
+			var				pos_incrScale = [10, 10];
+			function		toLeft( e )
+			{
+				var			n = document.getElementsByClassName('cell')[0];
+
+				n.style.left = n.offsetLeft - pos_incrScale[0] +"px";
+			}
+			function		toTop( e )
+			{
+				var			n = document.getElementsByClassName('cell')[0];
+				
+				n.style.top = n.offsetTop - pos_incrScale[1] +"px";
+			}
+			function		toRight( e )
+			{
+				var			n = document.getElementsByClassName('cell')[0];
+				
+				n.style.left = n.offsetLeft + pos_incrScale[0] +"px";
+			}
+			function		toBottom( e )
+			{
+				var			n = document.getElementsByClassName('cell')[0];
+				
+				n.style.top = n.offsetTop + pos_incrScale[1] +"px";
+			}
+
+			document.event("keydown;37", toLeft);
+			document.event("keydown;38", toTop);
+			document.event("keydown;39", toRight);
+			document.event("keydown;40", toBottom);
+		</script>
+	</head>
+	<body>
+		<div class="cell">
+		</div>
+	</body>
+</html>
