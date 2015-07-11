@@ -99,7 +99,7 @@
 							s_time += ":"+ Math.abs(secondes);
 					}
 
-					return (((minutes < 0 || secondes < 0) ? "-" : "") + s_time);
+					return (((hours == 0 && (minutes < 0 || secondes < 0)) ? "-" : "") + s_time);
 				}
 
 				function		addElements( ns, parent, elems )
