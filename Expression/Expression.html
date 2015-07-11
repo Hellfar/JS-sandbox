@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
+	<head>
+		<meta charset="UTF-8" >
+		<title></title>
+	</head>
+	<body>
+		<div id="workspace" >
+			<div id="output" ></div>
+			<input type="button" value="add an expression" onclick="Javascript:addElements(NS['html'], entries, [{'tag':'br'},{'tag':'input','placeholder':'expr'}]);" /><input type="button" value="evaluate" onclick="Javascript:calc();" />
+			<div id="entries" ></div>
+			<script>
+Object.prototype.properties =
+				function			std_Object_properties(  )
+				{
+					return (Object.getOwnPropertyNames(this));
+				};
+Object.prototype.testIf =
+				function			std_Object_testIf( callback, defVal, args )
+				{
+					if (callback.apply(null, [this].concat(args)))
+						return (this);
+
+					return (defVal);
+				};
+Array.prototype.search =
+				function			std_Array_search( callback, args )
+				{
+					var				l = this.length;
+					
+					for (var i = 0; i < l; i++)
+						if (callback.apply(null, [this[i]].concat(args)))
+							return (i);
+
+					return (-1);
+				};
+function		Expr(  )
+{
+	var			l_arguments = arguments.length;
+
+	for (var i = 0; i < l_arguments; i++)
+		this.set(arguments[i]);
+}
+Expr.prototype.binOpe =
+				function		std_Expr_binOpe( operator, left, right )
+				{
+					var			ret = null;
+
+					switch (operator)
+					{
+						case ('+'):
+							ret = left + right;
+							break;
+						case ('-'):
+							ret = left - right;
+							break;
+						case ('*'):
+							ret = left * right;
+							break;
+						case ('/'):
+							ret = left / right;
+							break;
+						case ('%'):
+							ret = left % right;
+							break;
+					};
+
+					return ((new Expr()).tokenize(new String(ret)));
+				};
+Expr.prototype.groupParser =
+				function	std_Expr_groupParser( e, dic, p_parent )
+				{
+					/*console.log(e, dic[e.type].type, p_parent, dic[e.type].type == 'group_end' && p_parent[0] - 1 == 0);*/
+					if (dic[e.type].type == 'group')
+						p_parent[0]++;
+					else if (dic[e.type].type == 'group_end' && --p_parent[0] == 0)
+						return(true);
+
+					return (false);
+				};
+Expr.prototype.dicInterp =
+				{
+					'i':{'type':'ignore', 'state':/[ \t]+/},
+					'ge':{'type':'group_end', 'state':'\\)'},
+					'g':{'type':'group', 'state':'\\(', 'bind':'ge'},
+					'v':{'type':'various', 'state':/[a-zA-Z]+/},
+					'n':{'type':'number', 'state':/\d+(\.\d+)?/},
+					'o':{'type':'binary', 'state':/\+|-|\*|\/|%/, 'left':'g,v,n', 'right':'g,v,n', 'func':Expr.prototype.binOpe},
+					'f':{'type':'unary', 'state':'-', 'right':'g,v,n', 'func':(function (e){return ((new Expr()).tokenize(new String(-1 * ~~e)));})},
+				};
+Expr.prototype.tokenSets = []; // form: [[{'type':'g|v|n|o', 'value':'string or object child form'}, {...}], [...]]
+Expr.prototype.stack = {}; // variables that have to be stored.
+Expr.prototype.tokenize =
+				function		std_Expr_tokenize( s_exprs )
+				{
+					var			ret = [],
+								a_exprs = s_exprs.split(';').filter(e=>e.length)
+								l_a_exprs = a_exprs.length,
+								dicKeys = this.dicInterp.properties(),
+								regs = dicKeys.map(e=>this.dicInterp[e].state),
+								l_regs = regs.length;
+
+					for (var i = 0; i < l_a_exprs; i++)
+					{
+						var		expr = a_exprs[i];
+
+						while (expr.length)
+						{
+							var		t_val = null;
+
+							for (var e = 0; e < l_regs; e++)
+								if (t_val = expr.match(regs[e]))
+									if (t_val = t_val.testIf(e=>e.index==0, null))
+									{
+										t_val = t_val[0];
+										break;
+									}
+							if (t_val == null)
+								throw ("Syntaxe Error Expression: At index "+ (a_exprs[i].length - expr.length) +" on case \""+ expr +"\" for the expression \""+ a_exprs[i] +"\"");
+							ret.push({'type':dicKeys[e], 'value':t_val});
+							expr = expr.substr(t_val.length);
+						}
+					}
+
+					return (ret);
+				};
+Expr.prototype.polishize =
+				function		std_Expr_polishize( tokens )
+				{
+					var			ret = [],
+								l_tokens = tokens.length;
+
+					for (var e = 0; e < l_tokens; e++)
+					{
+						var	token = tokens[e];
+						
+						switch (this.dicInterp[token.type].type)
+						{
+							case ('ignore'):
+								break;
+							case ('group'):
+								{
+									var	groupEnd = tokens.search(this.groupParser, [this.dicInterp, [0]]);
+									
+									if (groupEnd == -1)
+										throw ("Syntaxe Error Expression: Missing end of group begining at "+ e +" waiting for match \""+ this.dicInterp[this.dicInterp[token.type].bind].state +"\" began with match \""+ this.dicInterp[token.type].state +"\"");
+									ret = ret.concat(this.polishize(tokens.splice(e, groupEnd + 1).slice(1, groupEnd)));
+									l_tokens -= groupEnd + 1;
+								};
+								break;
+							case ('various'):
+								ret.push(token);
+								break;
+							case ('number'):
+								ret.push(token);
+								break;
+							case ('binary'):
+								{
+									if (tokens[++e] == undefined)
+										throw ("Syntaxe Error Expression: At token number "+ e +" which is \""+ token.value +"\" with type \""+ token.type +"\"");
+									ret.push(tokens[e]);
+									ret.push(token);
+								};
+								break;
+						}
+					}
+
+					return (ret);
+				};
+Expr.prototype.polishizeAll =
+				function		std_Expr_polishizeAll( tokenSets )
+				{
+					var			ret = [],
+								l_tokenSets = tokenSets.length;
+					
+					for (var i = 0; i < l_tokenSets; i++)
+						ret.push(this.polishize(tokenSets[i]));
+					
+					return (ret);
+				};
+Expr.prototype.set =
+				function		std_Expr_set( s_exprs )
+				{
+					var			polish = null;
+
+					this.tokenSets.push(this.tokenize(s_exprs));
+
+					polish = this.polishizeAll(this.tokenSets);
+
+					/*console.log(polish);*/
+
+					return (this);
+				};
+Expr.prototype.toString =
+				function		std_Expr_toString(  )
+				{
+					var			ret = "",
+								tokenSets = this.tokenSets;
+
+					/*for (var tok in tokenSets)
+						;*/
+
+					return (ret);
+				};
+
+				function		calc(  )
+				{
+					var			inputs = Array.prototype.slice.call(document.querySelectorAll("#entries input")).map(e=>e.value).filter(e=>e.length),
+								l_inputs = inputs.length,
+								exprs = new Expr();
+					
+					for (var i = 0; i < l_inputs; i++)
+					{
+						console.log(exprs);
+						exprs.set(inputs[i]);
+						console.log(exprs);
+					}
+					/*console.log(exprs);*/
+				}
+
+				var				NS = {
+					'html'		:'http://www.w3.org/1999/xhtml',
+					'svg'		:'http://www.w3.org/2000/svg'
+				};
+
+				function			addElements( ns, parent, elems )
+				{
+					var				a_o = [];
+					switch (typeof(elems))
+					{
+						case ("string"):
+						{
+							var		o = document.createTextNode(elems);
+							parent.appendChild(o);
+							a_o.push(o);
+						};
+						break;
+						case ("object"):
+						{
+							var		l_elems;
+							if (elems.constructor != Array)
+								elems = [elems];
+							l_elems = elems.length;
+							for (var i = 0; i < l_elems; i++)
+							{
+								var	elem = elems[i],
+									o;
+								if (elem.tag == "#text")
+									o = document.createTextNode(elem.value);
+								else
+								{
+									o = document.createElementNS(ns, elem.tag);
+									delete (elem.tag);
+									if (typeof (elem.child) != "undefined")
+										addElements(ns, o, elem.child);
+									delete (elem.child);
+									for (attr in elem)
+										if (elem.hasOwnProperty(attr) && elem[attr])
+											o.setAttributeNS(null, attr, elem[attr]);
+								}
+								parent.appendChild(o);
+								a_o.push(o);
+							}
+						};
+						break;
+					}
+					return (a_o);
+				}
+			</script>
+		</div>
+	</body>
+</html>
