@@ -8,7 +8,7 @@
 	<body>
 		<div id="workspace" >
 			<div id="output" ></div>
-			<input type="button" value="add an expression" onclick="Javascript:addElements(NS['html'], entries, [{'tag':'br'},{'tag':'input','placeholder':'expr'}]);" /><input type="button" value="evaluate" onclick="Javascript:calc();" />
+			<input type="button" value="add an expression" onclick="Javascript:addElements(NS['html'], entries, [{'tag':'br'},{'tag':'input','placeholder':'expr','value':'2*(1+1+1)-2'}]);" /><input type="button" value="evaluate" onclick="Javascript:calc();" />
 			<div id="entries" ></div>
 			<script>
 Object.prototype.properties =
@@ -38,6 +38,19 @@ Array.prototype.search =
 function		Expr(  )
 {
 	var			l_arguments = arguments.length;
+
+	this.dicInterp =
+				{
+					'i':{'type':'ignore', 'state':/[ \t\n\r]+/},
+					'ge':{'type':'group_end', 'state':'\\)'},
+					'g':{'type':'group', 'state':'\\(', 'closure':'ge'},
+					'v':{'type':'various', 'state':/[a-zA-Z]+/},
+					'n':{'type':'number', 'state':/\d+(\.\d+)?/},
+					'o':{'type':'binary', 'state':/\+|-|\*|\/|%/, 'left':'g,v,n', 'right':'g,v,n', 'func':Expr.prototype.binOpe},
+					'f':{'type':'unary', 'state':'-', 'right':'g,v,n', 'func':(function (e){return ((new Expr()).tokenize(new String(-1 * ~~e)));})},
+				};
+	this.tokenSets = []; // form: [[{'type':'g|v|n|o', 'value':'string or object child form'}, {...}], [...]]
+	this.stack = {}; // variables that have to be stored.
 
 	for (var i = 0; i < l_arguments; i++)
 		this.set(arguments[i]);
@@ -69,28 +82,18 @@ Expr.prototype.binOpe =
 					return ((new Expr()).tokenize(new String(ret)));
 				};
 Expr.prototype.groupParser =
-				function	std_Expr_groupParser( e, dic, p_parent )
+				function	std_Expr_groupParser( e, dic, seeking )
 				{
-					/*console.log(e, dic[e.type].type, p_parent, dic[e.type].type == 'group_end' && p_parent[0] - 1 == 0);*/
+					var		type = dic[e.type];
+					
+					/*console.log(e, type.type, seeking, type.type == 'group_end');*/
 					if (dic[e.type].type == 'group')
-						p_parent[0]++;
-					else if (dic[e.type].type == 'group_end' && --p_parent[0] == 0)
+						seeking.unshift(dic[e.type].closure);
+					else if (dic[e.type].type == 'group_end' && seeking.pop() == e.type)
 						return(true);
 
 					return (false);
 				};
-Expr.prototype.dicInterp =
-				{
-					'i':{'type':'ignore', 'state':/[ \t]+/},
-					'ge':{'type':'group_end', 'state':'\\)'},
-					'g':{'type':'group', 'state':'\\(', 'bind':'ge'},
-					'v':{'type':'various', 'state':/[a-zA-Z]+/},
-					'n':{'type':'number', 'state':/\d+(\.\d+)?/},
-					'o':{'type':'binary', 'state':/\+|-|\*|\/|%/, 'left':'g,v,n', 'right':'g,v,n', 'func':Expr.prototype.binOpe},
-					'f':{'type':'unary', 'state':'-', 'right':'g,v,n', 'func':(function (e){return ((new Expr()).tokenize(new String(-1 * ~~e)));})},
-				};
-Expr.prototype.tokenSets = []; // form: [[{'type':'g|v|n|o', 'value':'string or object child form'}, {...}], [...]]
-Expr.prototype.stack = {}; // variables that have to be stored.
 Expr.prototype.tokenize =
 				function		std_Expr_tokenize( s_exprs )
 				{
@@ -128,25 +131,20 @@ Expr.prototype.tokenize =
 Expr.prototype.polishize =
 				function		std_Expr_polishize( tokens )
 				{
-					var			ret = [],
-								l_tokens = tokens.length;
-
-					for (var e = 0; e < l_tokens; e++)
-					{
-						var	token = tokens[e];
-						
+					var			ret = [];
+					
+					for (var token; token = tokens.shift(); )
 						switch (this.dicInterp[token.type].type)
 						{
 							case ('ignore'):
 								break;
 							case ('group'):
 								{
-									var	groupEnd = tokens.search(this.groupParser, [this.dicInterp, [0]]);
-									
+									var	groupEnd = tokens.search(this.groupParser, [this.dicInterp, [this.dicInterp[token.type].closure]]);
+
 									if (groupEnd == -1)
-										throw ("Syntaxe Error Expression: Missing end of group begining at "+ e +" waiting for match \""+ this.dicInterp[this.dicInterp[token.type].bind].state +"\" began with match \""+ this.dicInterp[token.type].state +"\"");
-									ret = ret.concat(this.polishize(tokens.splice(e, groupEnd + 1).slice(1, groupEnd)));
-									l_tokens -= groupEnd + 1;
+										throw ("Syntaxe Error Expression: Missing end of group waiting for match \""+ this.dicInterp[this.dicInterp[token.type].bind].state +"\" began with match \""+ this.dicInterp[token.type].state +"\"");
+									ret = ret.concat(this.polishize(tokens.splice(0, groupEnd + 1).slice(0, groupEnd)));
 								};
 								break;
 							case ('various'):
@@ -157,15 +155,16 @@ Expr.prototype.polishize =
 								break;
 							case ('binary'):
 								{
-									if (tokens[++e] == undefined)
-										throw ("Syntaxe Error Expression: At token number "+ e +" which is \""+ token.value +"\" with type \""+ token.type +"\"");
-									ret.push(tokens[e]);
+									if (!(tokens.length))
+										throw ("Syntaxe Error Expression: A binary operator which is \""+ token.value +"\" with type \""+ token.type +"\" must have two operand");
+									ret.concat(this.polishize(tokens));
 									ret.push(token);
+									console.log("test", ret);
+									alert();
 								};
 								break;
 						}
-					}
-
+					console.log("ret", ret);
 					return (ret);
 				};
 Expr.prototype.polishizeAll =
@@ -182,24 +181,34 @@ Expr.prototype.polishizeAll =
 Expr.prototype.set =
 				function		std_Expr_set( s_exprs )
 				{
-					var			polish = null;
-
 					this.tokenSets.push(this.tokenize(s_exprs));
 
-					polish = this.polishizeAll(this.tokenSets);
-
-					/*console.log(polish);*/
-
 					return (this);
+				};
+Expr.prototype.evaluate =
+				function		std_Expr_evaluate(  )
+				{
+					var			polish = this.polishizeAll(this.tokenSets);
+
+					return (polish);
 				};
 Expr.prototype.toString =
 				function		std_Expr_toString(  )
 				{
 					var			ret = "",
-								tokenSets = this.tokenSets;
+								tokenSets = this.tokenSets,
+								l_tokenSets = this.tokenSets.length;
 
-					/*for (var tok in tokenSets)
-						;*/
+					for (var i = 0; i < l_tokenSets; i++)
+					{
+						var		tokens = tokenSets[i],
+								l_tokens = tokens.length;
+
+						if (i != 0)
+							ret += ";";
+						for (var e = 0; e < l_tokens; e++)
+							ret += tokens[e].value;
+					}
 
 					return (ret);
 				};
@@ -211,12 +220,8 @@ Expr.prototype.toString =
 								exprs = new Expr();
 					
 					for (var i = 0; i < l_inputs; i++)
-					{
-						console.log(exprs);
 						exprs.set(inputs[i]);
-						console.log(exprs);
-					}
-					/*console.log(exprs);*/
+					console.log(exprs.evaluate());
 				}
 
 				var				NS = {
