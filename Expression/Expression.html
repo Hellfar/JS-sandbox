@@ -8,7 +8,7 @@
 	<body>
 		<div id="workspace" >
 			<div id="output" ></div>
-			<input type="button" value="add an expression" onclick="Javascript:addElements(NS['html'], entries, [{'tag':'br'},{'tag':'input','placeholder':'expr','value':'2*(1+1+1)-2'}]);" /><input type="button" value="evaluate" onclick="Javascript:calc();" />
+			<input type="button" value="add an expression" onclick="Javascript:addElements(NS['html'], entries, [{'tag':'br'},{'tag':'input','placeholder':'expr','value':'4*(1+2+3)-5+-6'}]);" /><input type="button" value="evaluate" onclick="Javascript:calc();" />
 			<div id="entries" ></div>
 			<script>
 Object.prototype.properties =
@@ -35,6 +35,16 @@ Array.prototype.search =
 
 					return (-1);
 				};
+Array.prototype.first =
+				function			std_Array_first(  )
+				{
+					return (this.slice(0, 1)[0]);
+				};
+Array.prototype.last =
+				function			std_Array_last(  )
+				{
+					return (this.slice(-1)[0]);
+				};
 function		Expr(  )
 {
 	var			l_arguments = arguments.length;
@@ -43,11 +53,11 @@ function		Expr(  )
 				{
 					'i':{'type':'ignore', 'state':/[ \t\n\r]+/},
 					'ge':{'type':'group_end', 'state':'\\)'},
-					'g':{'type':'group', 'state':'\\(', 'closure':'ge'},
-					'v':{'type':'various', 'state':/[a-zA-Z]+/},
-					'n':{'type':'number', 'state':/\d+(\.\d+)?/},
-					'o':{'type':'binary', 'state':/\+|-|\*|\/|%/, 'left':'g,v,n', 'right':'g,v,n', 'func':Expr.prototype.binOpe},
-					'f':{'type':'unary', 'state':'-', 'right':'g,v,n', 'func':(function (e){return ((new Expr()).tokenize(new String(-1 * ~~e)));})},
+					'g':{'type':'group', 'state':'\\(', 'solve':true, 'closure':'ge'},
+					'o':{'type':'binary', 'state':/\+|-|\*|\/|%|=/, 'left':'ge,v,n', 'right':'g,v,n', 'func':Expr.prototype.binOpe},
+					/*'f':{'type':'unary', 'state':'-', 'right':'g,v,n', 'func':(function (e){return ((new Expr()).tokenize(new String(-1 * ~~e)));})},*/
+					'v':{'type':'various', 'state':/-?[a-zA-Z]+/},
+					'n':{'type':'number', 'state':/-?\d+(\.\d+)?/},
 				};
 	this.tokenSets = []; // form: [[{'type':'g|v|n|o', 'value':'string or object child form'}, {...}], [...]]
 	this.stack = {}; // variables that have to be stored.
@@ -56,30 +66,36 @@ function		Expr(  )
 		this.set(arguments[i]);
 }
 Expr.prototype.binOpe =
-				function		std_Expr_binOpe( operator, left, right )
+				function		std_Expr_binOpe( dic, operator, right, left )
 				{
-					var			ret = null;
-
+					var			ret = null,
+								operator = operator.value,
+								right = (dic[right.type].type == 'number') ? ~~right.value : right.value,
+								left = (dic[left.type].type == 'number') ? ~~left.value : left.value;
+					
 					switch (operator)
 					{
 						case ('+'):
 							ret = left + right;
-							break;
+						break;
 						case ('-'):
 							ret = left - right;
-							break;
+						break;
 						case ('*'):
 							ret = left * right;
-							break;
+						break;
 						case ('/'):
 							ret = left / right;
-							break;
+						break;
 						case ('%'):
 							ret = left % right;
-							break;
+						break;
+						case ('='):
+							ret = this.stack[left] = right;
+						break;
 					};
 
-					return ((new Expr()).tokenize(new String(ret)));
+					return ((new Expr()).tokenize(new String(ret))[0]);
 				};
 Expr.prototype.groupParser =
 				function	std_Expr_groupParser( e, dic, seeking )
@@ -113,14 +129,20 @@ Expr.prototype.tokenize =
 							var		t_val = null;
 
 							for (var e = 0; e < l_regs; e++)
-								if (t_val = expr.match(regs[e]))
+							{
+								var	dic = this.dicInterp[dicKeys[e]];
+
+								if ((t_val = expr.match(regs[e])) && dic.type != 'binary'
+									|| (ret.last() != undefined && dic.type == 'binary'
+										&& dic.left.split(',').indexOf(ret.last().type) != -1))
 									if (t_val = t_val.testIf(e=>e.index==0, null))
 									{
 										t_val = t_val[0];
 										break;
 									}
+							}
 							if (t_val == null)
-								throw ("Syntaxe Error Expression: At index "+ (a_exprs[i].length - expr.length) +" on case \""+ expr +"\" for the expression \""+ a_exprs[i] +"\"");
+								throw new SyntaxError("Expression: At index "+ (a_exprs[i].length - expr.length) +" on case \""+ expr +"\" for the expression \""+ a_exprs[i] +"\"");
 							ret.push({'type':dicKeys[e], 'value':t_val});
 							expr = expr.substr(t_val.length);
 						}
@@ -132,7 +154,7 @@ Expr.prototype.polishize =
 				function		std_Expr_polishize( tokens )
 				{
 					var			ret = [];
-					
+
 					for (var token; token = tokens.shift(); )
 						switch (this.dicInterp[token.type].type)
 						{
@@ -143,7 +165,7 @@ Expr.prototype.polishize =
 									var	groupEnd = tokens.search(this.groupParser, [this.dicInterp, [this.dicInterp[token.type].closure]]);
 
 									if (groupEnd == -1)
-										throw ("Syntaxe Error Expression: Missing end of group waiting for match \""+ this.dicInterp[this.dicInterp[token.type].bind].state +"\" began with match \""+ this.dicInterp[token.type].state +"\"");
+										throw new SyntaxError("Expression: Missing end of group waiting for match \""+ this.dicInterp[this.dicInterp[token.type].bind].state +"\" began with match \""+ this.dicInterp[token.type].state +"\"");
 									ret = ret.concat(this.polishize(tokens.splice(0, groupEnd + 1).slice(0, groupEnd)));
 								};
 								break;
@@ -156,15 +178,13 @@ Expr.prototype.polishize =
 							case ('binary'):
 								{
 									if (!(tokens.length))
-										throw ("Syntaxe Error Expression: A binary operator which is \""+ token.value +"\" with type \""+ token.type +"\" must have two operand");
-									ret.concat(this.polishize(tokens));
+										throw new SyntaxError("Expression: A binary operator which is \""+ token.value +"\" with type \""+ token.type +"\" must have two operand");
+									ret = ret.concat(this.polishize(tokens));
 									ret.push(token);
-									console.log("test", ret);
-									alert();
 								};
 								break;
 						}
-					console.log("ret", ret);
+					
 					return (ret);
 				};
 Expr.prototype.polishizeAll =
@@ -188,9 +208,36 @@ Expr.prototype.set =
 Expr.prototype.evaluate =
 				function		std_Expr_evaluate(  )
 				{
-					var			polish = this.polishizeAll(this.tokenSets);
+					var			polishes = this.polishizeAll(this.tokenSets),
+								a_pile = [];
 
-					return (polish);
+					for (var polish; polish = polishes.shift(); )
+						for (var token; token = polish.shift(); )
+						{
+							var	type = this.dicInterp[token.type];
+
+							switch (type.type)
+							{
+								case ('various'):
+								{
+									var	v = this.stack[token.value];
+
+									if (v)
+										a_pile.push((new Expr()).tokenize(new String(v))[0]);
+									else
+										a_pile.push(token);
+								};
+								break;
+								case ('number'):
+									a_pile.push(token);
+								break;
+								case ('binary'):
+									a_pile.push(type.func.call(this, this.dicInterp, token, a_pile.pop(), a_pile.pop()));
+								break;
+							}
+						}
+
+					return (a_pile);
 				};
 Expr.prototype.toString =
 				function		std_Expr_toString(  )
@@ -219,9 +266,16 @@ Expr.prototype.toString =
 								l_inputs = inputs.length,
 								exprs = new Expr();
 					
+					output.innerHTML = "";
 					for (var i = 0; i < l_inputs; i++)
 						exprs.set(inputs[i]);
-					console.log(exprs.evaluate());
+					inputs = exprs.evaluate();
+					for (var i = 0; i < l_inputs; i++)
+					{
+						if (i != 0)
+							output.innerHTML += "<br />";
+						output.innerHTML += inputs[i].value;
+					}
 				}
 
 				var				NS = {
@@ -232,11 +286,13 @@ Expr.prototype.toString =
 				function			addElements( ns, parent, elems )
 				{
 					var				a_o = [];
+
 					switch (typeof(elems))
 					{
 						case ("string"):
 						{
 							var		o = document.createTextNode(elems);
+
 							parent.appendChild(o);
 							a_o.push(o);
 						};
@@ -244,6 +300,7 @@ Expr.prototype.toString =
 						case ("object"):
 						{
 							var		l_elems;
+
 							if (elems.constructor != Array)
 								elems = [elems];
 							l_elems = elems.length;
@@ -251,6 +308,7 @@ Expr.prototype.toString =
 							{
 								var	elem = elems[i],
 									o;
+
 								if (elem.tag == "#text")
 									o = document.createTextNode(elem.value);
 								else
