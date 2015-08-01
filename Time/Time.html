@@ -8,8 +8,8 @@
 	<body>
 		<div id="workspace" >
 			<div id="output" ></div>
-			<input type="button" value="add a pass" onclick="Javascript:addElements(NS['html'], entries, [{'tag':'br'},{'tag':'input','placeholder':'new tick'}]);" /><input type="button" value="calc" onclick="Javascript:calc();" />
-			<input id="due_Hour" placeholder="due hours amount" value="7" /><input type="time" id="bound_morning" placeholder="bound.morning" value="8:15" /><input type="time" id="bound_evening" placeholder="bound.evening" value="18:35" />
+			<input type="button" value="add a pass" onclick="Javascript:addElements(NS['html'], entries, [{'tag':'br'},{'tag':'input','type':'time','placeholder':'new tick'}]);" /><input type="button" value="calc" onclick="Javascript:calc();" />
+			<input id="due_Hour" placeholder="due hours amount" value="7" /><input type="time" id="bound_morning" placeholder="bound.morning" value="08:15" /><input type="time" id="bound_evening" placeholder="bound.evening" value="18:30" />
 			<div id="entries" ></div>
 			<script>
 				var				NS = {
@@ -21,7 +21,7 @@
 				{
 					output.innerHTML = "";
 					{
-						var		inputs = Array.prototype.slice.call(entries.getElementsByTagName('input')).filter(e=>e.value.length?true:false),
+						var		inputs = Array.prototype.slice.call(entries.getElementsByTagName('input')).filter(function(e){return(e.value.length?true:false)}),
 								l_inputs = inputs.length,
 								tmp_ante = null,
 								bndmrnng = timeToNbr(bound_morning.value),
@@ -52,7 +52,7 @@
 				}
 				function		timeToNbr( time )
 				{
-					var			a_time = time.split(':').filter(e=>e.length?true:false);
+					var			a_time = time.split(':').filter(function(e){return(e.length?true:false)});
 					
 					switch (a_time.length)
 					{
