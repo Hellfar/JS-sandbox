@@ -1,0 +1,27 @@
+.reduce
+{
+	display: none;
+}
+
+button
+{
+	color: inherit;
+	line-height: normal;
+	cursor: pointer;
+	border: 0 rgba(0,0,0,0);
+	text-decoration: none;
+	border-radius: 2px;
+	-webkit-user-select: none;
+	box-sizing: border-box;
+	-webkit-appearance: button;
+	text-shadow: none;
+	outline: none;
+}
+button:hover
+{
+	background-color: silver;
+}
+input
+{
+	border: none;
+}

@@ -1,0 +1,8 @@
+.atom
+{
+	display: inline-block;
+	background-color: LightGrey;
+	color: DimGray !important;
+	margin: 15px;
+	word-break: break-all;
+}

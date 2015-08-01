@@ -1,0 +1,5 @@
+(for emiter) receptors =>
+	(for emiter) keys pool to emit to =>
+		(for receiver) keys stand =>
+			(for receiver) keys pool received items =>
+				(for emiter) item

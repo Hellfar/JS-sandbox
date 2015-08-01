@@ -1,0 +1,45 @@
+<link rel="stylesheet" href="../css/std.css" >
+<link rel="stylesheet" href="../css/Type/Atom/Atom.css" >
+<style>
+	.tool
+	{
+		font-size: 3em;
+		padding: 0em 0em;
+		color: DimGray !important;
+	}
+
+	#Atom
+	{
+		border: 2px solid black;
+	}
+	#Function
+	{
+		border: 2px solid black;
+	}
+</style>
+<script type="text/javascript" src="../js/Type/Primary/Object/Object.js" ></script>
+<script type="text/javascript" src="../js/Type/Primary/Array/Array.js" ></script>
+<script type="text/javascript" src="../js/Type/Element/Element.js" ></script>
+<script type="text/javascript" src="../js/corres/Meta_Element/Meta_Element.js" ></script>
+<script type="text/javascript" src="../js/Type/Atom/Atom.js" ></script>
+<script type="text/javascript" src="../js/Type/Atom/Atom_Interface.js" ></script>
+<script type="text/javascript" >
+				var					functions =
+				{
+					'cpy'			:[{'name':'cpy','set':null}, (function(p){return (Object.clone(p.set));})],
+					'acpy'			:[{'name':'acpy','set':null,'separator':',|;| '}, (function(p){return (p.set.split(new RegExp(p.separator)));})],
+				};
+				var					templates =
+				{
+					'name'			:functions.properties()
+									.implement({'onchange':'javascript:var t=this.parent(), pos = t.siblingElements().position;t.innerHTML=\'\';t.addElements([(pos) ? {\'tag\':\'br\'} : {}].concat(jsonParams(functions[this.value][0].implement({\'set\':t.parent(\'.atom\').atom.stand[pos]}),templates)));'}),
+				};
+</script>
+
+<select class="tool" onchange="Javascript:var n = document.querySelector('#'+ this.value);n.removeClass('reduce');n.siblingElements('div').forEach(function(e){e.appendClass('reduce');});" >
+	<option value="Atom" selected="selected" >Atom</option>
+	<option value="Function" >Function</option>
+</select>
+<button class="tool" onclick="Javascript:new Atom(document.querySelector('#'+ this.siblingElements('select.tool').first().value));" >+</button>
+<div id="Atom" ></div>
+<div id="Function" class="reduce" ></div>
