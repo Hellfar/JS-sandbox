@@ -6,8 +6,7 @@
 		<title>Motion</title>
 	</head>
 	<body>
-		<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" id="canvas" >
-		</svg>
+		<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" id="canvas" ></svg>
 		<div id="workspace" >
 			<input type="button" value="add a shape" onclick="javascript:addShape(this.parentNode);" />
 			<input type="button" value="draw" onclick="javascript:draw();" />
@@ -85,8 +84,9 @@ Element.prototype.appendChilds =
 
 				var					NS = {
 					'html'			:'http://www.w3.org/1999/xhtml',
-					'svg'			:'http://www.w3.org/2000/svg'
+					'svg'			:'http://www.w3.org/2000/svg',
 				};
+				var					id = 0;
 				var					shapes = {
 					'rect'			:{'tag':'rect','fill':null,'stroke':null,'x':null,'y':null,'width':null,'height':null,'rx':null,'ry':null},
 					'circle'		:{'tag':'circle','fill':null,'stroke':null,'cx':null,'cy':null,'r':null},
@@ -96,7 +96,7 @@ Element.prototype.appendChilds =
 					'#text'			:{'tag':'#text','value':null},
 				};
 				var					templates = {
-					'tag'			:Object.getOwnPropertyNames(shapes)
+					'tag'			:shapes.properties()
 									.implement({'onchange':'javascript:var t=this.parentNode;t.innerHTML=\'\';addElements(NS[\'html\'],t,jsonParams(shapes[this.value],templates));'})
 				};
 				
@@ -177,16 +177,23 @@ Element.prototype.appendChilds =
 
 						for (var i = 0; i < l_paramsPool; i++)
 						{
-							var		params = Array.prototype.slice.call(paramsPool[i].getElementsByClassName('param')),
-									motions = Array.prototype.slice.call(paramsPool[i].getElementsByClassName('motion')),
-									l_motions = motions.length;
+							var		shapeCur = paramsPool[i],
+									params = Array.prototype.slice.call(shapeCur.getElementsByClassName('param')),
+									motions = Array.prototype.slice.call(shapeCur.getElementsByClassName('motion')),
+									l_motions = motions.length,
+									parent = shapeCur.querySelector('.parent').value;
 
+							if (parent)
+								parent = canvas.querySelector('#svg_'+ parent);
+							else
+								parent = canvas;
 							if (params.length)
 								params = paramsJson(params[0].childNodes);
 							else
 								params = {};
 							motions = motions.map(function(e){return (paramsJson(e.childNodes).implement({'tag':'animate','attributeType':'XML','fill':'freeze'}));});
-							addElements(NS["svg"], canvas, params.implement({'child':motions}));
+
+							addElements(NS["svg"], parent, params.implement({'id':'svg_'+ shapeCur.id,'child':motions}));
 						}
 					};
 				}
@@ -196,15 +203,19 @@ Element.prototype.appendChilds =
 					addElements(NS["html"], parent, 
 						[
 							{'tag':'br'},
-							{'tag':'div','class':'shape','style':'border:2px solid black','child':
+							{'tag':'div','id':id,'class':'shape','style':'border:2px solid black','child':
 								[
+									{'tag':'#text','value':id},
+									{'tag':'br'},
 									{'tag':'span','class':'param','child':jsonParams(shapes[templates.tag[0]],templates)},
 									{'tag':'br'},
-									{'tag':'label','child':'Motion'},
-									{'tag':'input','type':'checkbox','onchange':'Javascript:var parent=this.parentNode;if(this.checked)addElements(NS[\'html\'],parent,[{\'tag\':\'div\',\'class\':\'motionWork\',\'child\':[{\'tag\':\'input\',\'type\':\'button\',\'value\':\'add Motion\',\'onclick\':\'Javascript:addElements(NS[\\\'html\\\'],this.parentNode,{\\\'tag\\\':\\\'span\\\',\\\'class\\\':\\\'motion\\\',\\\'child\\\':jsonParams({\\\'attributeName\\\':null,\\\'from\\\':null,\\\'to\\\':null,\\\'dur\\\':null,\\\'repeatCount\\\':\\\'indefinite\\\'})});addElements(NS[\\\'html\\\'],this.parentNode,{\\\'tag\\\':\\\'br\\\'});\'},{\'tag\':\'br\'}]}]);else parent.removeChild(parent.getElementsByClassName(\'motionWork\')[0]);'},
+									{'tag':'input','class':'parent','placeholder':'parent'},
+									{'tag':'label','for':id +'_Motion','child':'Motion'},
+									{'tag':'input','type':'checkbox','id':id +'_Motion','onchange':'Javascript:var parent=this.parentNode;if(this.checked)addElements(NS[\'html\'],parent,[{\'tag\':\'div\',\'class\':\'motionWork\',\'child\':[{\'tag\':\'input\',\'type\':\'button\',\'value\':\'add Motion\',\'onclick\':\'Javascript:addElements(NS[\\\'html\\\'],this.parentNode,{\\\'tag\\\':\\\'span\\\',\\\'class\\\':\\\'motion\\\',\\\'child\\\':jsonParams({\\\'attributeName\\\':null,\\\'from\\\':null,\\\'to\\\':null,\\\'dur\\\':null,\\\'repeatCount\\\':\\\'indefinite\\\'})});addElements(NS[\\\'html\\\'],this.parentNode,{\\\'tag\\\':\\\'br\\\'});\'},{\'tag\':\'br\'}]}]);else parent.removeChild(parent.getElementsByClassName(\'motionWork\')[0]);'},
 								]
 							},
 						]);
+					id++;
 				}
 
 				function			jsonParams( o, templates )
@@ -319,7 +330,7 @@ Element.prototype.appendChilds =
 										addElements(ns, o, elem.child);
 									delete (elem.child);
 									for (attr in elem)
-										if (elem.hasOwnProperty(attr) && elem[attr])
+										if (elem.hasOwnProperty(attr) && elem[attr] != undefined)
 											o.setAttributeNS(null, attr, elem[attr]);
 								}
 								parent.appendChild(o);
