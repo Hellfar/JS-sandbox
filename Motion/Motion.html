@@ -91,6 +91,9 @@ Element.prototype.appendChilds =
 					'rect'			:{'tag':'rect','fill':null,'stroke':null,'x':null,'y':null,'width':null,'height':null,'rx':null,'ry':null},
 					'circle'		:{'tag':'circle','fill':null,'stroke':null,'cx':null,'cy':null,'r':null},
 					'line'			:{'tag':'line','stroke':null,'x1':null,'y1':null,'x2':null,'y2':null},
+					'image'			:{'tag':'image','xlink:href':null,'x':null,'y':null,'height':null,'width':null},
+					'text'			:{'tag':'text','fill':null,'stroke':null,'x':null,'y':null, 'font-family':null, 'font-size':null},
+					'#text'			:{'tag':'#text','value':null},
 				};
 				var					templates = {
 					'tag'			:Object.getOwnPropertyNames(shapes)
@@ -210,7 +213,7 @@ Element.prototype.appendChilds =
 									props = o.properties(),
 									l_props = props.length;
 
-					if (templates == undefined)
+					if (!(templates))
 						templates = {};
 
 					for (attr in o)
@@ -218,7 +221,7 @@ Element.prototype.appendChilds =
 						if (o.hasOwnProperty(attr))
 						{
 							var		input = {},
-									templateAttr = templates[attr];
+									templateAttr = templates[attr] || null;
 
 							switch (typeof (templateAttr))
 							{
@@ -227,7 +230,9 @@ Element.prototype.appendChilds =
 									break;
 								case ("object"):
 									{
-										if (templateAttr.constructor == Array)
+										if (templateAttr == null)
+											;
+										else if (templateAttr.constructor == Array)
 										{
 											var	values = [];
 
@@ -248,9 +253,9 @@ Element.prototype.appendChilds =
 														input[k] = value;
 												}
 											input['child'] = values;
+											break;
 										}
 									};
-									break;
 								default:
 									input = {'tag':'input','name':attr,'placeholder':attr};
 									break;
