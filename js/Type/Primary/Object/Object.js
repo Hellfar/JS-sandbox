@@ -38,6 +38,31 @@ Object.prototype.clone =
 					
 					return (copy);
 				};
+Object.prototype.isEqual =
+				function			std_Object_isEqual( obj, cmpW )
+				{
+					switch (arguments.length)
+					{
+						case (0):
+							return (false);
+						break;
+						case (1):
+							cmpW = obj;
+							obj = this;
+					};
+					if ((typeof (obj) == "number" && isNaN(obj)) && (typeof (obj) == "number" && isNaN(cmpW)))
+						return (true);
+					if ((obj === null || cmpW === null) || (typeof (obj) != "object" || typeof (cmpW) != "object"))
+						return (obj === cmpW);
+					
+					if (obj.constructor != cmpW.constructor)
+						return (false);
+					for (var attr in obj)
+						if (typeof (obj[attr]) != typeof (cmpW[attr]) || !(Object.isEqual(obj[attr], cmpW[attr])))
+							return (false);
+					
+					return (true);
+				};
 Object.prototype.implement =
 				function			std_Object_implement( r_obj )
 				{

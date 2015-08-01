@@ -51,7 +51,7 @@ Element.prototype.siblingElements =
 									found = false;
 					
 					selectors.forEach(function(e,i,a){a[i]=Array.prototype.slice.call(document.querySelectorAll(e))});
-					childs = childs.filter(function(e){return(e.nodeName != "#text");}).filter(function(e,i){if (!found)position++;if (e != that && (selectors.length == 0 || selectors.some(function(ed){return (ed.indexOf(e) != -1);}))){return (true);} else if (!found && e == that)found = true; return (false);}).implement({'position':position});
+					childs = childs.filter(function(e){return(e.nodeName != "#text");}).filter(function(e){return (selectors.length == 0 || selectors.some(function(ed){return (ed.indexOf(e) != -1);}))}).filter(function(e){if (!found){position++;found = (e == that);}return (true);}).implement({'position':position});
 					
 					return (childs);
 				};

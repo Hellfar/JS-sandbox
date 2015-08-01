@@ -41,7 +41,7 @@ Atom.prototype.interface =
 								{
 									'tag'		:'button',
 									'child'		:'Stand',
-									'onclick'	:'Javascript:this.parent().addElements({\'tag\':\'span\',\'child\':[{\'tag\':\'br\'},{\'tag\':\'input\',\'placeholder\':\'synapse Key\','+/*\'onkeyup\':\'Javascript:if (!(this.t)){this.t=window.setTimeout(function(that){that.parent(\\\'.atom\\\').atom.synapse(that.value);delete(that.t);}, 1000, this);};\'*/'},{\'tag\':\'button\',\'onclick\':\'this.parent(\\\'.synapsesIn\\\').removeChild(this.parent());\',\'child\':\'o\'}]});',
+									'onclick'	:'Javascript:this.parent().addElements({\'tag\':\'span\',\'child\':[{\'tag\':\'br\'},{\'tag\':\'input\',\'placeholder\':\'synapse Key\','+/*\'onkeyup\':\'Javascript:if (!(this.t)){this.t=window.setTimeout(function(that){that.parent(\\\'.atom\\\').atom.synapse(that.value);delete(that.t);}, 1000, this);};\'*/'},{\'tag\':\'button\',\'onclick\':\'this.parent(\\\'.atom\\\').atom.stand.splice(this.parent(\\\'span\\\').siblingElements(\\\'input\\\').position, 1);console.log(this.parent(\\\'span\\\').siblingElements(\\\'span\\\'));this.parent(\\\'.synapsesIn\\\').removeChild(this.parent());\',\'child\':\'o\'}]});',
 								},
 							},
 							{'tag'	:'hr'},
@@ -80,12 +80,13 @@ Atom.prototype.interface =
 							//~ },
 						],
 					})[0].implement({'atom'	:this,});
+					this.keep = [];
 				};
 Atom.prototype.refresh =
 				function			std_Atom_refresh(  )
 				{
 					var				node = this.node,
-									stand = this.stand = [],
+									stand = this.stand,
 									l_stand = 0,
 									pool = this.pool = [],
 									l_pool = 0;
@@ -108,13 +109,12 @@ Atom.prototype.refresh =
 								case (value.match(/\d+/)[0]):
 								{
 									value = ~~value;
-									console.log(recept[value]);
-									if (recept[value])
-										o = recept[value];
+									o = recept[value] || null;
 								};
 								break;
 							};
-							stand.push(o);
+							if (!(Object.isEqual(this.keep[i], o)))
+								this.keep[i] = stand[i] = o;
 						};
 						l_stand = stand.length;
 					};
