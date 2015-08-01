@@ -41,7 +41,7 @@ Atom.prototype.interface =
 								{
 									'tag'		:'button',
 									'child'		:'Stand',
-									'onclick'	:'Javascript:this.parent().addElements({\'tag\':\'span\',\'child\':[{\'tag\':\'br\'},{\'tag\':\'input\',\'placeholder\':\'synapse Key\','+/*\'onkeyup\':\'Javascript:if (!(this.t)){this.t=window.setTimeout(function(that){that.parent(\\\'.atom\\\').atom.synapse(that.value);delete(that.t);}, 1000, this);};\'*/'},{\'tag\':\'button\',\'onclick\':\'this.parent(\\\'.atom\\\').atom.stand.splice(this.parent(\\\'span\\\').siblingElements(\\\'input\\\').position, 1);console.log(this.parent(\\\'span\\\').siblingElements(\\\'span\\\'));this.parent(\\\'.synapsesIn\\\').removeChild(this.parent());\',\'child\':\'o\'}]});',
+									'onclick'	:'Javascript:this.parent().addElements({\'tag\':\'span\',\'child\':[{\'tag\':\'br\'},{\'tag\':\'input\',\'placeholder\':\'synapse Key\','+/*\'onkeyup\':\'Javascript:if (!(this.t)){this.t=window.setTimeout(function(that){that.parent(\\\'.atom\\\').atom.synapse(that.value);delete(that.t);}, 1000, this);};\'*/'},{\'tag\':\'button\',\'onclick\':\'this.parent(\\\'.atom\\\').atom.stand.splice(this.parent(\\\'span\\\').siblingElements(\\\'input\\\').position, 1);this.parent(\\\'.synapsesIn\\\').removeChild(this.parent());\',\'child\':\'o\'}]});',
 								},
 							},
 							{'tag'	:'hr'},
