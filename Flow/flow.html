@@ -20,23 +20,24 @@
 <script type="text/javascript" src="../js/Type/Primary/Object/Object.js" ></script>
 <script type="text/javascript" src="../js/Type/Primary/Array/Array.js" ></script>
 <script type="text/javascript" src="../js/Type/Element/Element.js" ></script>
+<script type="text/javascript" src="../js/Type/Element/NodeList.js" ></script>
+<script type="text/javascript" src="../js/corres/Meta_Array/Meta_Array.js" ></script>
 <script type="text/javascript" src="../js/corres/Meta_Element/Meta_Element.js" ></script>
+<script type="text/javascript" src="../js/corres/Meta_Element/Meta_NodeList.js" ></script>
 <script type="text/javascript" src="../js/Type/Atom/Atom.js" ></script>
 <script type="text/javascript" src="../js/Type/Atom/Atom_Interface.js" ></script>
+<script type="text/javascript" src="./functions.js" ></script>
 <script type="text/javascript" >
-				var					functions =
-				{
-					'cpy'			:[{'name':'cpy','set':null}, (function(p){return (Object.clone(p.set));})],
-					'acpy'			:[{'name':'acpy','set':null,'separator':',|;| '}, (function(p){return (p.set.split(new RegExp(p.separator)));})],
-				};
 				var					templates =
 				{
 					'name'			:functions.properties()
-									.implement({'onchange':'javascript:var t=this.parent(), pos = t.siblingElements().position;t.innerHTML=\'\';t.addElements([(pos) ? {\'tag\':\'br\'} : {}].concat(jsonParams(functions[this.value][0].implement({\'set\':t.parent(\'.atom\').atom.stand[pos]}),templates)));'}),
+									.implement({'onchange':'javascript:var t=this.parent(\'span\'), pos = t.siblingElements().position;t.innerHTML=\'\';t.addElements([(pos) ? {\'tag\':\'br\'} : {}].concat(jsonParams(functions[this.value][0]'+/*.implement({\'set\':t.parent(\'.atom\').atom.stand[pos]})*/',templates)));'}),
+					'text'			:{'tag':'textarea','name':'set','placeholder':'set'},
+					'time'			:'time',
 				};
 </script>
 
-<select class="tool" onchange="Javascript:var n = document.querySelector('#'+ this.value);n.removeClass('reduce');n.siblingElements('div').forEach(function(e){e.appendClass('reduce');});" >
+<select class="tool reduce" onchange="Javascript:var n = document.querySelector('#'+ this.value);n.removeClass('reduce');n.siblingElements('div').forEach(function(e){e.appendClass('reduce');});" >
 	<option value="Atom" selected="selected" >Atom</option>
 	<option value="Function" >Function</option>
 </select>

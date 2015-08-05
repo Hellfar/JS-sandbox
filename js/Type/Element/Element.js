@@ -37,9 +37,25 @@ Element.prototype.siblings =
 									found = false;
 					
 					selectors.forEach(function(e,i,a){a[i]=Array.prototype.slice.call(document.querySelectorAll(e))});
-					childs = childs.filter(function(e,i){if (!found)position++;if (e != that && (selectors.length == 0 || selectors.some(function(ed){return (ed.indexOf(e) != -1);}))){return (true);} else if (!found && e == that)found = true; return (false);}).implement({'position':position})
+					childs = childs.filter(function(e)
+					{
+						return (selectors.length == 0 || selectors.some(function(ed)
+							{
+								return (ed.indexOf(e) != -1);
+							}));
+					}).filter(function(e)
+					{
+						if (!found)
+						{
+							position++;
+
+							return (!(found = (e == that)));
+						}
+
+						return (true);
+					});
 					
-					return (childs);
+					return (toNodeList(childs).implement({'position':position}));
 				};
 Element.prototype.siblingElements =
 				function			std_Element_siblingElements(  )
@@ -51,9 +67,28 @@ Element.prototype.siblingElements =
 									found = false;
 					
 					selectors.forEach(function(e,i,a){a[i]=Array.prototype.slice.call(document.querySelectorAll(e))});
-					childs = childs.filter(function(e){return(e.nodeName != "#text");}).filter(function(e){return (selectors.length == 0 || selectors.some(function(ed){return (ed.indexOf(e) != -1);}))}).filter(function(e){if (!found){position++;found = (e == that);}return (true);}).implement({'position':position});
-					
-					return (childs);
+					childs = childs.filter(function(e)
+					{
+						return(e.nodeName != "#text");
+					}).filter(function(e)
+					{
+						return (selectors.length == 0 || selectors.some(function(ed)
+							{
+								return (ed.indexOf(e) != -1);
+							}));
+					}).filter(function(e)
+					{
+						if (!found)
+						{
+							position++;
+
+							return (!(found = (e == that)));
+						}
+
+						return (true);
+					});
+
+					return (toNodeList(childs).implement({'position':position}));
 				};
 Element.prototype.parent =
 				function			std_Element_parent(  )
@@ -69,6 +104,15 @@ Element.prototype.parent =
 					
 					return (p);
 				};
+Element.prototype.insertAfter =
+				function			std_Element_insertAfter( n_elem, aftElem )
+				{
+					var				b_last = aftElem.nextSibling;
+
+					if (!(aftElem.nextSibling))
+						return (this.appendChild(n_elem));
+					return (this.insertBefore(n_elem, aftElem.nextSibling));
+				}
 Element.prototype.addElements =
 				function			std_Element_addElements( elems )
 				{
@@ -120,4 +164,9 @@ Element.prototype.addElements =
 						break;
 					}
 					return (a_o);
+				};
+Element.prototype.remove =
+				function			std_Element_remove(  )
+				{
+					this.parentNode.removeChild(this);
 				};

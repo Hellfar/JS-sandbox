@@ -29,37 +29,31 @@ Atom.prototype.interface =
 									{
 										'tag'		:'button',
 										'child'		:'refresh',
-										'onclick'	:'Javascript:this.parent(\'.atom\').atom.refresh();',
+										'onclick'	:'Javascript:this.parent(\'.atom\').atom.interface_refresh();',
 									},
 								],
 							},
 							{'tag'	:'hr'},
 							{
 								'tag'	:'div',
-								'class'	:'synapsesIn',
+								'class'	:'synapses',
 								'child':
 								{
-									'tag'		:'button',
-									'child'		:'Stand',
-									'onclick'	:'Javascript:this.parent().addElements({\'tag\':\'span\',\'child\':[{\'tag\':\'br\'},{\'tag\':\'input\',\'placeholder\':\'synapse Key\','+/*\'onkeyup\':\'Javascript:if (!(this.t)){this.t=window.setTimeout(function(that){that.parent(\\\'.atom\\\').atom.synapse(that.value);delete(that.t);}, 1000, this);};\'*/'},{\'tag\':\'button\',\'onclick\':\'this.parent(\\\'.atom\\\').atom.stand.splice(this.parent(\\\'span\\\').siblingElements(\\\'input\\\').position, 1);this.parent(\\\'.synapsesIn\\\').removeChild(this.parent());\',\'child\':\'o\'}]});',
+									'tag'			:'button',
+									'child'			:'Stand',
+									'onclick'		:'Javascript:var s=this.siblingElements(\'.synapse\');this.parent().addElements({\'tag\':\'span\',\'class\':\'synapse\',\'child\':[{\'tag\':\'br\'},{\'tag\':\'input\',\'placeholder\':\'synapse Key\','+/*\'onkeyup\':\'Javascript:if (!(this.t)){this.t=window.setTimeout(function(that){that.parent(\\\'.atom\\\').atom.synapse(that.value);delete(that.t);}, 1000, this);};\'*/'},{\'tag\':\'button\',\'onclick\':\'this.parent(\\\'.atom\\\').atom.synapses(this.parent(\\\'.synapse\\\').siblingElements(\\\'.synapse\\\').position, 1);\',\'child\':\'o\'}]});',
 								},
 							},
 							{'tag'	:'hr'},
 							{
 								'tag'	:'div',
+								'class'	:'operators',
 								'child'	:
-								[
-									{
-										'tag'		:'button',
-										'child'		:'+',
-										'onclick'	:'Javascript:if(this.innerHTML==\'-\'){this.innerHTML=\'+\';this.siblingElements(\'.operator\')[0].appendClass(\'reduce\');}else{this.innerHTML=\'-\';this.siblingElements(\'.operator\')[0].removeClass(\'reduce\');};',
-									},
-									{
-										'tag'		:'div',
-										'class'		:'operator reduce',
-										'child'		:'',
-									},
-								],
+								{
+									'tag'			:'button',
+									'child'			:'+',
+									'onclick'		:'Javascript:if(this.innerHTML==\'-\'){this.innerHTML=\'+\';this.siblingElements(\'.operator\').appendClass(\'reduce\');}else{this.innerHTML=\'-\';this.siblingElements(\'.operator\').removeClass(\'reduce\');};',
+								},
 							},
 							{'tag'	:'hr'},
 							{
@@ -79,22 +73,32 @@ Atom.prototype.interface =
 								//~ },
 							//~ },
 						],
-					})[0].implement({'atom'	:this,});
-					this.keep = [];
+					}).first().implement({'atom'	:this,});
 				};
-Atom.prototype.refresh =
-				function			std_Atom_refresh(  )
+Atom.prototype.interface_synapses =
+				function			std_Atom_interface_synapses(  )
+				{
+					var				node = this.node,
+									synapse = node.querySelectorAll('.synapse'),
+									operator = node.querySelectorAll('.operator');
+					
+					synapse.splice.apply(synapse, arguments).toArray().forEach(function(e){e.remove();});
+					operator.splice.apply(operator, arguments).toArray().forEach(function(e){e.remove();});
+				};
+/*Atom.prototype.interface*/
+Atom.prototype.interface_refresh =
+				function			std_Atom_interface_refresh(  )
 				{
 					var				node = this.node,
 									stand = this.stand,
-									l_stand = 0,
-									pool = this.pool = [],
-									l_pool = 0;
+									l_stand = stand.length,
+									pool = this.pool,
+									l_pool = pool.length,
+									synapses = node.querySelectorAll('.synapse input'),
+									l_synapses = synapses.length;
 					
-					{// synapsesIn processes.
-						var			synapses = node.querySelectorAll('.synapsesIn input'),
-									l_synapses = synapses.length,
-									previous = node.previousElementSibling || null,
+					{// synapses processes.
+						var			previous = node.previousElementSibling || null,
 									recept = (previous) ? previous.atom.pool : [];
 						
 						for (var i = 0; i < l_synapses; i++)
@@ -113,30 +117,32 @@ Atom.prototype.refresh =
 								};
 								break;
 							};
-							if (!(Object.isEqual(this.keep[i], o)))
-								this.keep[i] = stand[i] = o;
+							stand[i] = o;
 						};
 						l_stand = stand.length;
 					};
 					
 					{// operators
-						var			operators = node.querySelector('.operator');
+						var			operators = [],
+									opes = node.querySelector('.operators'),
+									l_n_operators = l_synapses - node.querySelectorAll('.operator').length,
+									params = functions[templates["name"][0]][0]/*.implement({'set':stand[i]})*/,
+									t_templates = templates.clone();
 						
-						operators.innerHTML = '';
-						for (var i = 0; i < l_stand; i++)
+						for (var i = 0; i < l_n_operators; i++)
+							operators.push({'tag':'span','class':'operator'+ ((opes.querySelector('button').innerHTML == '+') ? ' reduce' : ''),'child':[{'tag':'br'}].concat(jsonParams(params, t_templates))});
+						opes.addElements(operators);
+						node.querySelectorAll('.operator').toArray().forEach(function(e, i)
 						{
-							var		params = functions[templates["name"][0]][0].implement({'set':stand[i]});
-							
-							operators.addElements({'tag':'span','child':[((i) ? {'tag':'br'} : {})].concat(jsonParams(params, templates))});
-							
-							pool.push(functions[params.name][1](params));
-						};
+							params = paramsJson(e.childNodes);
+							pool[i] = functions[params.name][1](this, i, params);
+						});
 						l_pool = pool.length;
 					};
 					
 					{// output
 						var			output = node.querySelector('.output');
-						
+						console.log(l_pool, pool);
 						output.innerHTML = (l_pool) ? '' : '**EMPTY**';
 						for (var i = 0; i < l_pool; i++)
 							output.addElements([(i > 0) ? {'tag':'br'} : {}, {'tag':'#text','value':pool[i]}]);

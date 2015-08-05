@@ -14,10 +14,27 @@
 							var		input = {},
 									templateAttr = templates[attr] || null;
 							
+							switch (typeof (o[attr]))
+							{
+								case ("string"):
+									input.value = o[attr];
+								break;
+								case ("object"):
+									input.implement(o[attr]);
+								break;
+							};
 							switch (typeof (templateAttr))
 							{
 								case ("string"):
-									input = {'tag':'input','name':attr,'placeholder':attr,'type':templateAttr};
+									switch (templateAttr)
+									{
+										case ("textarea"):
+											input.implement({'tag':'textarea','name':attr,'placeholder':attr});
+										break;
+										default:
+											input.implement({'tag':'input','name':attr,'placeholder':attr,'type':templateAttr});
+										break;
+									};
 									break;
 								case ("object"):
 									{
@@ -27,7 +44,7 @@
 										{
 											var	values = [];
 
-											input = {'tag':'select','name':attr};
+											input.implement({'tag':'select','name':attr});
 											for (k in templateAttr)
 												if (templateAttr.hasOwnProperty(k))
 												{
@@ -43,15 +60,21 @@
 													else
 														input[k] = value;
 												}
-											input['child'] = values;
+											if (!(input['child']))
+												input['child'] = [];
+											input['child'] = input['child'].concat(values);
+											break;
+										}
+										else
+										{
+											input = templateAttr.clone();
 											break;
 										}
 									};
 								default:
-									input = {'tag':'input','name':attr,'placeholder':attr};
+									input.implement({'tag':'input','name':attr,'placeholder':attr});
 									break;
 							};
-							input.value = o[attr] || "";
 							params.push(input);
 						}
 					}
@@ -62,12 +85,13 @@
 				{
 					var				element = {},
 									l_params = params.length;
-
+					
 					for (var i = 0; i < l_params; i++)
 					{
 						var			param = params[i];
 
-						element[param.name] = param.value || null;
+						if (param.name)
+							element[param.name] = param.value || null;
 					}
 					
 					return (element);

@@ -7,6 +7,15 @@
 					if (typeof (this.interface) == "function")
 						this.interface.apply(this, arguments);
 				}
+Atom.prototype.synapses =
+				function			std_Atom_synapses(  )
+				{
+					this.stand.splice.apply(this.stand, arguments);
+					this.pool.splice.apply(this.pool, arguments);
+					
+					if (typeof (this.interface_synapses) == "function")
+						this.interface_synapses.apply(this, arguments);
+				};
 //~ Atom.prototype.emit =
 				//~ function			std_Atom_emit(  )
 				//~ {
