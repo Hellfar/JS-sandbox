@@ -142,7 +142,7 @@ Atom.prototype.interface_refresh =
 					
 					{// output
 						var			output = node.querySelector('.output');
-						console.log(l_pool, pool);
+						
 						output.innerHTML = (l_pool) ? '' : '**EMPTY**';
 						for (var i = 0; i < l_pool; i++)
 							output.addElements([(i > 0) ? {'tag':'br'} : {}, {'tag':'#text','value':pool[i]}]);
