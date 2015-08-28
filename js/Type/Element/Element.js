@@ -1,3 +1,24 @@
+Element.prototype.getStyle =
+				function			std_Element_getStyle( param )
+				{
+					if (typeof(param) != "undefined" && this.style[param])
+						return (this.style[param]);
+					else
+						return (window.getComputedStyle(this, null).getPropertyValue(param));
+				};
+Element.prototype.identify =
+				function			std_Element_identify( suffix, prefix )
+				{
+					if (suffix == undefined)
+						suffix = "";
+					if (prefix == undefined)
+						prefix = "";
+					if (this.id == "")
+						this.id = prefix + ~~this.static_componentID++ + suffix;
+					
+					return (this.id);
+				};
+Element.prototype.identify.static_componentID = "0";
 Element.prototype.appendClass =
 				function			std_Element_appendClass( name )
 				{
@@ -12,7 +33,7 @@ Element.prototype.appendClass =
 					return (this.className);
 				};
 Element.prototype.removeClass =
-				function removeClass( name )
+				function 			std_Element_removeClass( name )
 				{
 					var currentClassValue = this.className;
 				
@@ -90,6 +111,39 @@ Element.prototype.siblingElements =
 
 					return (toNodeList(childs).implement({'position':position}));
 				};
+Element.prototype.getChild =
+				function			std_Element_getChild( key )
+				{
+					if (isNumber(key))
+						return (this.childNodes[key] || null);
+					
+					return (null);
+				};
+Element.prototype.getChildElement =
+				function			std_Element_getChildElement( key )
+				{
+					if (isNumber(key))
+						return (this.children[key] || null);
+					
+					return (null);
+				};
+Element.prototype.insertNode =
+				function			std_Element_insertNode( key, node )
+				{
+					this.insertBefore(node, this.getChild(key));
+
+					return (this);
+				};
+Element.prototype.parentNodes =
+				function			std_Element_parentNodes(  )
+				{
+					var				a_parentNodes = [];
+					
+					for (currentElem = this.parentNode; currentElem != null; currentElem = currentElem.parentNode)
+						a_parentNodes.push(currentElem);
+					
+					return (toNodeList(a_parentNodes));
+				};
 Element.prototype.parent =
 				function			std_Element_parent(  )
 				{
@@ -104,69 +158,62 @@ Element.prototype.parent =
 					
 					return (p);
 				};
+Element.prototype.isChildOf =
+				function			std_Element_isChildOf( suspect )
+				{
+					return (this.parentNodes().indexOf(suspect) > -1);
+				};
 Element.prototype.insertAfter =
 				function			std_Element_insertAfter( n_elem, aftElem )
 				{
 					var				b_last = aftElem.nextSibling;
 
-					if (!(aftElem.nextSibling))
+					if (!(b_last))
 						return (this.appendChild(n_elem));
-					return (this.insertBefore(n_elem, aftElem.nextSibling));
-				}
-Element.prototype.addElements =
-				function			std_Element_addElements( elems )
+
+					return (this.insertBefore(n_elem, b_last));
+				};
+Element.prototype.setAttributeWeak =
+				function			std_Element_weakSetAttribute( key, value )
 				{
-					var				ns = this.namespaceURI,
-									a_o = [];
+					if (this.getAttributeNS(this.namespace, key) == null)
+						this.setAttributeNS(this.namespace, key, value);
 					
-					switch (typeof (elems))
-					{
-						case ("string"):
-						{
-							var		o = document.createTextNode(elems);
-							
-							this.appendChild(o);
-							a_o.push(o);
-						};
-						break;
-						case ("object"):
-						{
-							var		l_elems;
-							
-							if (elems.constructor != Array)
-								elems = [elems];
-							l_elems = elems.length;
-							for (var i = 0; i < l_elems; i++)
-							{
-								var	elem = elems[i],
-									o;
-								
-								if (typeof (elem.tag) != "undefined")
-								{
-									if (elem.tag == "#text")
-										o = document.createTextNode(elem.value);
-									else
-									{
-										o = document.createElementNS(ns, elem.tag);
-										delete (elem.tag);
-										if (typeof (elem.child) != "undefined")
-											o.addElements(elem.child);
-										delete (elem.child);
-										for (attr in elem)
-											if (elem.hasOwnProperty(attr) && elem[attr])
-												o.setAttributeNS(null, attr, elem[attr]);
-									}
-									this.appendChild(o);
-									a_o.push(o);
-								}
-							}
-						};
-						break;
-					}
-					return (a_o);
+					return (this.getAttributeNS(this.namespace, key));
+				};
+Element.prototype.setAttributesNS =
+				function			std_Element_setAttributesNS( ns, o_attributesSet )
+				{
+					for (var attr in o_attributesSet)
+						if (o_attributesSet.hasOwnProperty(attr))
+							this.setAttributeNS(ns, attr, o_attributesSet[attr]);
+				};
+Element.prototype.setAttributesNSWeak =
+				function			std_Element_setAttributesNSWeak( ns, o_attributesSet )
+				{
+					for (var attr in o_attributesSet)
+						if (o_attributesSet.hasOwnProperty(attr))
+							this.setAttributeWeak(ns, attr, o_attributesSet[attr]);
+				};
+Element.prototype.appendChilds =
+				function			std_Element_appendChilds( childs )
+				{
+					var				l_childs = childs.length;
+					
+					for (var i = 0; i < l_childs; i++)
+						this.appendChild(childs[i]);
+
+					return (this);
 				};
 Element.prototype.remove =
 				function			std_Element_remove(  )
 				{
-					this.parentNode.removeChild(this);
+					return (this.parentNode.removeChild(this));
+				};
+Element.prototype.empty =
+				function			std_Element_empty(  )
+				{
+					this.innerHTML = "";
+					
+					return (this);
 				};

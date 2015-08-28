@@ -1,3 +1,56 @@
+				function			createElements( elems, ns )
+				{
+					var				a_o = [];
+					
+					ns = ns || null;
+					switch (typeof (elems))
+					{
+						case ("string"):
+						{
+							var		o = document.createTextNode(elems);
+							
+							a_o.push(o);
+						};
+						break;
+						case ("object"):
+						{
+							var		l_elems;
+							
+							if (elems.constructor != Array)
+								elems = [elems];
+							l_elems = elems.length;
+							for (var i = 0; i < l_elems; i++)
+							{
+								var	elem = elems[i],
+									o;
+								
+								if (typeof (elem.tag) != "undefined")
+								{
+									if (elem.tag == "#text")
+										o = document.createTextNode(elem.value);
+									else
+									{
+										o = document.createElementNS(ns, elem.tag);
+										delete (elem.tag);
+										if (typeof (elem.child) != "undefined")
+											o.appendChilds(createElements(elem.child));
+										delete (elem.child);
+										for (attr in elem)
+											if (elem.hasOwnProperty(attr) && elem[attr])
+												if (attr == "value")
+													o.value = elem[attr];
+												else
+													o.setAttributeNS(null, attr, elem[attr]);
+									}
+									a_o.push(o);
+								}
+							}
+						};
+						break;
+					}
+					return (a_o);
+				};
+
 				function			jsonParams( o, templates )
 				{
 					var				params = [],
@@ -23,6 +76,7 @@
 									input.implement(o[attr]);
 								break;
 							};
+							console.log("input", input, typeof (templateAttr), templateAttr);
 							switch (typeof (templateAttr))
 							{
 								case ("string"):
@@ -67,12 +121,13 @@
 										}
 										else
 										{
-											input = templateAttr.clone();
+											input.implementWeak(templateAttr);
+											console.log("input2", input);
 											break;
 										}
 									};
 								default:
-									input.implement({'tag':'input','name':attr,'placeholder':attr});
+									input.implementWeak({'tag':'input','name':attr,'placeholder':attr});
 									break;
 							};
 							params.push(input);
@@ -88,10 +143,23 @@
 					
 					for (var i = 0; i < l_params; i++)
 					{
-						var			param = params[i];
-
-						if (param.name)
-							element[param.name] = param.value || null;
+						var			param = params[i],
+									name;
+						
+						if (param.name && (name = param.name.match(/^\s*([a-zA-Z]\w*)(\[\s*\])?\s*$/))[0])
+						{
+							var		key = name[1],
+									value = (param.type == "checkbox") ? ((param.checked) ? (param.value || null) : null) : (param.value || null);
+							
+							if (name[2])
+							{
+								if (typeof (element[key]) != "object" || element[key].constructor != Array)
+									element[key] = [];
+								element[key].push(value);
+							}
+							else
+								element[key] = value;
+						}
 					}
 					
 					return (element);

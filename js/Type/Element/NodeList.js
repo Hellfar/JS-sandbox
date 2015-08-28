@@ -44,16 +44,6 @@ NodeList.prototype.splice =
 						return (toNodeList(ret));*/
 					};
 				};
-NodeList.prototype.appendClass =
-				function			std_NodeList_appendClass( name )
-				{
-					toArray(this).forEach(function(e){e.appendClass(name);});
-				};
-NodeList.prototype.removeClass =
-				function			std_NodeList_removeClass( name )
-				{
-					toArray(this).forEach(function(e){e.removeClass(name);});
-				};
 NodeList.prototype.toArray =
 				function			std_NodeList_toArray(  )
 				{
@@ -68,4 +58,24 @@ NodeList.prototype.last =
 				function			std_NodeList_last(  )
 				{
 					return (toArray(this, -1)[0] || null);
+				};
+NodeList.prototype.indexOf =
+				function			std_NodeList_indexOf( soughtNode )
+				{
+					return (this.toArray().indexOf(soughtNode));
+				};
+NodeList.prototype.forEach =
+				function			std_NodeList_forEach(  )
+				{
+					return (this.toArray().forEach.apply(a, arguments));
+				};
+NodeList.prototype.appendClass =
+				function			std_NodeList_appendClass( name )
+				{
+					this.forEach(function(e){e.appendClass(name);});
+				};
+NodeList.prototype.removeClass =
+				function			std_NodeList_removeClass( name )
+				{
+					this.forEach(function(e){e.removeClass(name);});
 				};

@@ -1,0 +1,218 @@
+<link rel="stylesheet" href="../css/std.css" >
+<style>
+	.tool
+	{
+		font-size: 3em;
+		padding: 0em 0em;
+		color: DimGray !important;
+	}
+
+	#truth
+	{
+		border: 2px solid black;
+	}
+	#truth td
+	{
+		border: 1px solid black;
+	}
+</style>
+<script type="text/javascript" src="../js/Type/Primary/Object/Object.js" ></script>
+<script type="text/javascript" src="../js/Type/Primary/Array/Array.js" ></script>
+<script type="text/javascript" src="../js/corres/Meta_Array/Meta_Array.js" ></script>
+<script type="text/javascript" src="../js/corres/Meta_Element/Meta_Element.js" ></script>
+<script type="text/javascript" src="../js/Type/Element/Element.js" ></script>
+<script type="text/javascript" src="../js/Type/Math/utils.js" ></script>
+<script type="text/javascript" src="../js/Type/Element/Event.js" ></script>
+<script type="text/javascript" >
+HTMLTableSectionElement.prototype.getRow =
+				function			std_HTMLTableSectionElement_getRow(  )
+				{
+					var				row = this.getRowWeak.apply(this, arguments);
+
+					if (!row)
+					{
+						var			l_rows,
+									k_row = (~~arguments[0]) + 1;
+
+						while ((l_rows = this.rows.length) < k_row)
+							row = this.insertRow(l_rows);
+					}
+
+					return (row);
+				};
+HTMLTableSectionElement.prototype.getRowWeak =
+				function			std_HTMLTableSectionElement_getRowWeak(  )
+				{
+					return (this.rows[arguments[0]] || null);
+				};
+HTMLTableSectionElement.prototype.getCell =
+				function			std_HTMLTableSectionElement_getCell(  )
+				{
+					var				row = this.getRow.apply(this, arguments),
+									cell = row.cells[arguments[1]];
+
+					if (!cell)
+					{
+						var			l_cells,
+									k_cell = (~~arguments[1]) + 1;
+
+						while ((l_cells = row.cells.length) < k_cell)
+							cell = row.insertCell(l_cells);
+					}
+
+					return (cell);
+				};
+HTMLTableSectionElement.prototype.getCellWeak =
+				function			std_HTMLTableSectionElement_getCellWeak(  )
+				{
+					var				row = this.getRowWeak.apply(this, arguments);
+
+					if (!row)
+						return (null);
+
+					return (row.cells[arguments[1]] || null);
+				};
+HTMLTableSectionElement.prototype.setCell =
+				function			std_HTMLTableSectionElement_setCell(  )
+				{
+					var				args = toArray(arguments),
+									content,
+									elem = this.getCell.apply(this, args.slice(0, -1));
+
+					if (content = args.last())
+					{
+						if (content.instanceOf(String))
+							elem.innerHTML = content;
+						else if (content.instanceOf(Element))
+							elem.appendChild(content);
+					}
+
+					return (content);
+				};
+HTMLTableSectionElement.prototype.removeCell =
+				function			std_HTMLTableSectionElement_removeCell(  )
+				{
+					return (this.removeChild(this.getCellWeak.apply(this, arguments)));
+				};
+HTMLTableSectionElement.prototype.clear =
+				function			std_HTMLTableSectionElement_clear(  )
+				{
+					var				l_arguments = arguments.length;
+
+					if (l_arguments == 0)
+						this.empty();
+					else if (l_arguments == 1)
+					{
+						var			row = this.getRowWeak(arguments[0]);
+
+						if (!row)
+							return (this);
+						row.empty();
+					}
+
+					return (this);
+				};
+HTMLTableSectionElement.prototype.getElem =
+				function			std_HTMLTableSectionElement_getElem(  )
+				{
+					var				l_arguments = arguments.length;
+					
+					if (l_arguments > 1)
+						return (this.getCell.apply(this, arguments));
+					else if (l_arguments > 0)
+						return (this.getRow.apply(this, arguments));
+					else if (l_arguments == 0)
+						return (this.getElemWeak());
+				};
+HTMLTableSectionElement.prototype.getElemWeak =
+				function			std_HTMLTableSectionElement_getElemWeak(  )
+				{
+					var				l_arguments = arguments.length;
+					
+					if (l_arguments > 1)
+						return (this.getCellWeak.apply(this, arguments));
+					else if (l_arguments > 0)
+					{
+						var			row = this.getRowWeak.apply(this, arguments);
+
+						if (!row)
+							return (null);
+
+						return (row.cells);
+					}
+					else if (l_arguments == 0)
+					{
+						var			cells = [],
+									rows,
+									l_rows;
+
+						rows = this.rows;
+						l_rows = rows.length;
+						for (var i = 0; i < l_rows; i++)
+							cells[i] = rows[i].cells;
+
+						return (cells);
+					}
+				};
+HTMLTableElement.prototype.createTBody =
+				function			std_HTMLTableElement_createTBody(  )
+				{
+					return (this.tBodies[arguments[0] || 0] || this.appendChild(document.createElement('tbody')));
+				};
+HTMLTableElement.prototype.deleteTBody =
+				function			std_HTMLTableElement_deleteTBody(  )
+				{
+					this.removeChild(this.createTBody.apply(this, arguments));
+
+					return (this);
+				};
+
+var				startChar = 'a';
+
+function							inputNumberChange( e )
+{
+	var								value = ~~e.target.value;
+
+	setTruthTable(value);
+}
+function							setTruthTable( inputNumber )
+{
+	var								n_trueRows = (inputNumber == 0) ? 0 : Math.pow(2, inputNumber),
+									truth = document.querySelector('#truth'),
+									head = truth.createTHead().getRow(0).empty(),
+									body = truth.createTBody().empty(),
+									l_cells;
+
+	if (inputNumber < 0 || inputNumber > 26)
+	{
+		alert('Wrong number of input, must be between 0 and 26.');
+		return;
+	}
+	while (inputNumber > (l_cells = head.cells.length))
+		head.insertCell(0).innerHTML = String.fromCharCode(startChar.charCodeAt() + l_cells);
+	{
+		for (var y = 0; y < n_trueRows; y++)
+			for (var x = 0; x < inputNumber; x++)
+				body.setCell(y, x, (Math.floor(y / (n_trueRows / Math.pow(2, (1 + x)))) % 2) ? "1" : "0");
+	};
+	{
+		head.insertCell(inputNumber).innerHTML = "S";
+		console.log(body.namespaceURI);
+		for (var i = 0; i < n_trueRows; i++)
+			body.setCell(i, inputNumber, createElements({'tag':'button','child':'0','onclick':'Javascript:this.innerHTML=(this.innerHTML == \'0\')?\'1\':\'0\';'}, body.namespaceURI)[0]);
+	};
+}
+</script>
+
+<label for="inputNumber" >number of inputs:</label><input id="inputNumber" class="tool" type="number" value="0" min="0" max="26" />
+<table id="truth" >
+	<thead>
+		<tr>
+			<td>S</td>
+		</tr>
+	</thead>
+</table>
+<span id="equation" >non-stated = S</span>
+<script type="text/javascript" >
+document.getElementById('inputNumber').event("onchange", inputNumberChange);
+</script>

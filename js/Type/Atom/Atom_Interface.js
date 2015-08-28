@@ -126,16 +126,22 @@ Atom.prototype.interface_refresh =
 						var			operators = [],
 									opes = node.querySelector('.operators'),
 									l_n_operators = l_synapses - node.querySelectorAll('.operator').length,
-									params = functions[templates["name"][0]][0]/*.implement({'set':stand[i]})*/,
-									t_templates = templates.clone();
+									params = functions[templates["name"][0]][0];
 						
 						for (var i = 0; i < l_n_operators; i++)
-							operators.push({'tag':'span','class':'operator'+ ((opes.querySelector('button').innerHTML == '+') ? ' reduce' : ''),'child':[{'tag':'br'}].concat(jsonParams(params, t_templates))});
+						{
+							var		t_params = params.clone(),
+									t_templates = templates.clone();
+
+							if (!(t_params[functions[t_params.name][1]]))
+								t_params[functions[t_params.name][1]] = (stand[i]) ? stand[i].toString() : null;
+							operators.push({'tag':'span','class':'operator'+ ((opes.querySelector('button').innerHTML == '+') ? ' reduce' : ''),'child':[{'tag':'br'}].concat(jsonParams(t_params, t_templates))});
+						};
 						opes.addElements(operators);
 						node.querySelectorAll('.operator').toArray().forEach(function(e, i)
 						{
 							params = paramsJson(e.childNodes);
-							pool[i] = functions[params.name][1](this, i, params);
+							pool[i] = functions[params.name][2](this, i, params);
 						});
 						l_pool = pool.length;
 					};

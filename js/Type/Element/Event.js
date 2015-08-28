@@ -1,22 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8">
-		<title>Avoider</title>
-		<style>
-			.cell
-			{
-				position:absolute;
-				height:100px;
-				width:100px;
-				background-color:#eee;
-				border:1px solid black;
-				border-radius:15px;
-				text-align:center;
-			}
-		</style>
-		<script>
 document.event =
 			function		std_document_event( eventName, callback, prevent )
 			{
@@ -72,55 +53,3 @@ Element.prototype.event =
 				
 				this[eventName] = (function(e){document.event.control(e, callback, prevent, params);});
 			};
-Element.prototype.css =
-			function		std_Element_css( propertie, value )
-			{
-				console.log(arguments);
-			}
-
-			var				pos_incrScale = [10, 10];
-			function		toLeft( e )
-			{
-				var			n = document.getElementsByClassName('cell')[0];
-
-				n.style.left = n.offsetLeft - pos_incrScale[0] +"px";
-			}
-			function		toTop( e )
-			{
-				var			n = document.getElementsByClassName('cell')[0];
-				
-				n.style.top = n.offsetTop - pos_incrScale[1] +"px";
-			}
-			function		toRight( e )
-			{
-				var			n = document.getElementsByClassName('cell')[0];
-				
-				n.style.left = n.offsetLeft + pos_incrScale[0] +"px";
-			}
-			function		toBottom( e )
-			{
-				var			n = document.getElementsByClassName('cell')[0];
-				
-				n.style.top = n.offsetTop + pos_incrScale[1] +"px";
-			}
-			function		toShrink( e )
-			{
-				var			n = document.getElementsByClassName('cell')[0];
-				
-				/*console.log(getComputedStyle(n).getPropertyValue("border-top-left-radius"));
-				n.style.borderRadius = n.style.borderRadius - 1 +"px";*/
-				n.css("test");
-			}
-
-			document.event("keydown;LEFT", toLeft);
-			document.event("keydown;UP", toTop);
-			document.event("keydown;RIGHT", toRight);
-			document.event("keydown;BOTTOM", toBottom);
-			document.event("keydown;SPACE", toShrink);
-		</script>
-	</head>
-	<body>
-		<div class="cell">
-		</div>
-	</body>
-</html>

@@ -13,3 +13,15 @@ Array.prototype.last =
 				{
 					return (this.slice(-1)[0] || null);
 				};
+Array.prototype.sum =
+				function			std_Array_Math_sum(  )
+				{
+					var				a = (typeof(this) == "undefined") ? arguments[0] : this,
+									len_a = a.length,
+									sum = 0;
+					
+					for (var i = 0; i < len_a; i++)
+						sum += a[i];
+					
+					return (sum);
+				};

@@ -72,8 +72,98 @@ Object.prototype.implement =
 					
 					return (this);
 				};
+Object.prototype.implementWeak =
+				function			std_Object_implementWeak( r_obj )
+				{
+					for (var attr in r_obj)
+						if (r_obj.hasOwnProperty(attr) && this[attr] == undefined)
+							this[attr] = r_obj[attr];
+					
+					return (this);
+				};
+Object.prototype.extract =
+				function			std_Object_extract(  )
+				{
+					var				b = (typeof (this) == 'function') ? false : true,
+									obj = (b) ? this : arguments[0];
+					
+					arguments = Array.prototype.slice.call(arguments, 0);
+					if (!b)
+						arguments = arguments.slice(1);
+					function	removeNReturn( obj, k )
+					{
+						var		v = obj[k] || null;
+						
+						delete (obj[k]);
+						
+						return (v);
+					}
+					function	v_extract( arg )
+					{
+						switch (typeof (arg))
+						{
+							case ("string"): // strange behavior of switch allow that (making a "string" or "number" comparison).
+							case ("number"):
+								return (removeNReturn(obj, arg));
+								break;
+							case ("object"):
+								switch (arg.constructor)
+								{
+									case (Array):
+										{
+											var	a = [],
+												len_arg = arg.length,
+												b = false,
+												t;
+											
+											for (var i = 0; i < len_arg; i++)
+											{
+												a.push(t = (typeof (arg[i]) == "object") ? v_extract(arg[i]) : removeNReturn(obj, arg[i]));
+												if (t != null)
+													b = true;
+											}
+											if (b)
+												return (a);
+										};
+										break;
+									default:
+										{
+											var	b = false;
+											
+											for (var item in arg)
+												if (arg.hasOwnProperty(item))
+													if ((arg[item] = (arg[item] == null) ? removeNReturn(obj, item) : v_extract(arg[item])) != null)
+														b = true;
+											if (b)
+												return (arg);
+										};
+										break;
+								}
+								break;
+						}
+						
+						return (null);
+					}
+					var			len_args = arguments.length;
+					
+					for (var i = 0; i < len_args; i++)
+					{
+						var		arg = arguments[i],
+								o = v_extract(arg);
+						
+						if (o != null)
+							return (o);
+					}
+					
+					return (null);
+				};
 Object.prototype.properties =
 				function			std_Object_properties(  )
 				{
 					return (Object.getOwnPropertyNames(this));
+				};
+Object.prototype.instanceOf =
+				function			std_Object_instanceOf( objectC )
+				{
+					return (this instanceof objectC || this.constructor == objectC);
 				};

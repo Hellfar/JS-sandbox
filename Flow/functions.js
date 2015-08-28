@@ -1,33 +1,35 @@
 functions =
 				{
-					'setcpy'		:[{'name':'setcpy','set':null}, (function(c, i, p)
+					'setcpy'		:[{'name':'setcpy','set':null}, 'set', (function(c, i, p)
 					{
 						return (Object.clone(p.set));
 					})],
-					'setacpy'		:[{'name':'setacpy','set':null,'separator':',|;| '}, (function(c, i, p)
+					'setacpy'		:[{'name':'setacpy','set':null,'separator':',|;| '}, 'set', (function(c, i, p)
 					{
-						alert('setacpy!!!');
-
 						return (p.set.split(new RegExp(p.separator)));
 					})],
-					'cpy'			:[{'name':'cpy','set':null}, (function(c, i, p)
+					'cpy'			:[{'name':'cpy','set':null}, 'set', (function(c, i, p)
 					{
 						return (Object.clone(c.pool[~~(p.set)]));
 					})],
-					'acpy'			:[{'name':'acpy','set':null}, (function(c, i, p)
+					'acpy'			:[{'name':'acpy','set':null}, 'set', (function(c, i, p)
 					{
 						return (c.slice.apply(c, p.set.split(/-|,|;| /)));
 					})],
-					'settextcpy'	:[{'name':'settextcpy','text':null}, (function(c, i, p)
+					'settextcpy'	:[{'name':'settextcpy','text':null}, 'text', (function(c, i, p)
 					{
 						return (Object.clone(p.set));
 					})],
-					'settimecpy'	:[{'name':'settimecpy','set':{'type':'time'}}, (function(c, i, p)
+					'settimecpy'	:[{'name':'settimecpy','set':{'type':'time'}}, 'set', (function(c, i, p)
 					{
 						return (Object.clone(p.set));
 					})],
-					'addtime'	:[{'name':'addtime','set':{'type':'time'},'time':'01:00'}, (function(c, i, p)
+					'addtime'		:[{'name':'addtime','set':{'type':'time'},'time':'01:00'}, 'set', (function(c, i, p)
 					{
 						return (~~(p.set) + ~~(p.time));
+					})],
+					'choice'		:[{'name':'choice','un':{'type':'checkbox','name':'check[]'},'deux':{'type':'checkbox','name':'check[]'}}, 'set', (function(c, i, p)
+					{
+						return (p.check);
 					})],
 				};
