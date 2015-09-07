@@ -102,7 +102,7 @@ Object.prototype.extract =
 					{
 						switch (typeof (arg))
 						{
-							case ("string"): // strange behavior of switch allow that (making a "string" or "number" comparison).
+							case ("string"):
 							case ("number"):
 								return (removeNReturn(obj, arg));
 								break;

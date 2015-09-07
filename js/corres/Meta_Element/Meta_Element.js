@@ -40,7 +40,10 @@
 												if (attr == "value")
 													o.value = elem[attr];
 												else
-													o.setAttributeNS(null, attr, elem[attr]);
+													if (ns)
+														o.setAttributeNS(null, attr, elem[attr]);
+													else
+														o.setAttribute(attr, elem[attr]);
 									}
 									a_o.push(o);
 								}
