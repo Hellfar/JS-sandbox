@@ -15,7 +15,7 @@ Element.prototype.identify =
 						prefix = "";
 					if (this.id == "")
 						this.id = prefix + ~~this.static_componentID++ + suffix;
-					
+
 					return (this.id);
 				};
 Element.prototype.identify.static_componentID = "0";
@@ -23,7 +23,7 @@ Element.prototype.appendClass =
 				function			std_Element_appendClass( name )
 				{
 					var				currentClassValue = this.className;
-					
+
 					if (currentClassValue.indexOf(name) == -1)
 						if ((currentClassValue == null) || (currentClassValue === ""))
 							this.className = name;
@@ -36,14 +36,14 @@ Element.prototype.removeClass =
 				function 			std_Element_removeClass( name )
 				{
 					var currentClassValue = this.className;
-				
+
 					if (currentClassValue == name)
 					{
 						this.className = "";
 
 						return;
 					}
-				
+
 					this.className = currentClassValue.split(" ").filter(function (e){return (e.trim() && e != name);}).join(" ");
 
 					return (this.className);
@@ -56,7 +56,7 @@ Element.prototype.siblings =
 									selectors = Array.prototype.slice.call(arguments),
 									position = -1,
 									found = false;
-					
+
 					selectors.forEach(function(e,i,a){a[i]=Array.prototype.slice.call(document.querySelectorAll(e))});
 					childs = childs.filter(function(e)
 					{
@@ -75,7 +75,7 @@ Element.prototype.siblings =
 
 						return (true);
 					});
-					
+
 					return (toNodeList(childs).implement({'position':position}));
 				};
 Element.prototype.siblingElements =
@@ -86,7 +86,7 @@ Element.prototype.siblingElements =
 									selectors = Array.prototype.slice.call(arguments),
 									position = -1,
 									found = false;
-					
+
 					selectors.forEach(function(e,i,a){a[i]=Array.prototype.slice.call(document.querySelectorAll(e))});
 					childs = childs.filter(function(e)
 					{
@@ -116,7 +116,9 @@ Element.prototype.getChild =
 				{
 					if (isNumber(key))
 						return (this.childNodes[key] || null);
-					
+					else if (key == undefined)
+						return (this.childNodes);
+
 					return (null);
 				};
 Element.prototype.getChildElement =
@@ -124,7 +126,9 @@ Element.prototype.getChildElement =
 				{
 					if (isNumber(key))
 						return (this.children[key] || null);
-					
+					else if (key == undefined)
+						return (this.children);
+
 					return (null);
 				};
 Element.prototype.insertNode =
@@ -138,10 +142,10 @@ Element.prototype.parentNodes =
 				function			std_Element_parentNodes(  )
 				{
 					var				a_parentNodes = [];
-					
+
 					for (currentElem = this.parentNode; currentElem != null; currentElem = currentElem.parentNode)
 						a_parentNodes.push(currentElem);
-					
+
 					return (toNodeList(a_parentNodes));
 				};
 Element.prototype.parent =
@@ -149,13 +153,13 @@ Element.prototype.parent =
 				{
 					var				p = this.parentNode,
 									selectors = Array.prototype.slice.call(arguments);
-					
+
 					selectors.forEach(function(e,i,a){a[i]=Array.prototype.slice.call(document.querySelectorAll(e))});
 					if (selectors.length)
 						for (; p !=  null; p = p.parentNode)
 							if (selectors.some(function(e){return(e.indexOf(p) != -1);}))
 								break;
-					
+
 					return (p);
 				};
 Element.prototype.isChildOf =
@@ -178,7 +182,7 @@ Element.prototype.setAttributeWeak =
 				{
 					if (this.getAttributeNS(this.namespace, key) == null)
 						this.setAttributeNS(this.namespace, key, value);
-					
+
 					return (this.getAttributeNS(this.namespace, key));
 				};
 Element.prototype.setAttributesNS =
@@ -199,7 +203,7 @@ Element.prototype.appendChilds =
 				function			std_Element_appendChilds( childs )
 				{
 					var				l_childs = childs.length;
-					
+
 					for (var i = 0; i < l_childs; i++)
 						this.appendChild(childs[i]);
 
@@ -214,6 +218,6 @@ Element.prototype.empty =
 				function			std_Element_empty(  )
 				{
 					this.innerHTML = "";
-					
+
 					return (this);
 				};

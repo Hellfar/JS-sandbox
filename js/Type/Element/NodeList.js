@@ -18,7 +18,7 @@ NodeList.prototype.splice =
 									fragDoc = document.createDocumentFragment(),
 									args = toArray(arguments, 2),
 									l_args = args.length;
-						
+
 						if (last)
 							for (var i = 0; i < l_args; i++)
 								last = last.parentNode.insertBefore(args[i], last);
@@ -35,7 +35,7 @@ NodeList.prototype.splice =
 									l_itself = itself.length,
 									l_thisLength = this.length,
 									i = 0;
-						
+
 						for (; i < l_itself; i++)
 							this[i] = itself[i];
 						for (; i < l_thisLength; i++)
@@ -62,12 +62,16 @@ NodeList.prototype.last =
 NodeList.prototype.indexOf =
 				function			std_NodeList_indexOf( soughtNode )
 				{
-					return (this.toArray().indexOf(soughtNode));
+					var					index = Array.prototype.indexOf.call(this, soughtNode);
+
+					return (index);
 				};
 NodeList.prototype.forEach =
 				function			std_NodeList_forEach(  )
 				{
-					return (this.toArray().forEach.apply(a, arguments));
+					Array.prototype.forEach.apply(this, arguments);
+
+					return (this);
 				};
 NodeList.prototype.appendClass =
 				function			std_NodeList_appendClass( name )

@@ -1,0 +1,73 @@
+<link rel="stylesheet" href="../css/std.css" >
+<style>
+	.tool
+	{
+		font-size: 3em;
+		padding: 0em 0em;
+		color: DimGray !important;
+	}
+	#object
+	{
+		border: 2px black solid;
+	}
+</style>
+<script type="text/javascript" src="../js/Type/Primary/Object/Object.js" ></script>
+<script type="text/javascript" src="../js/corres/Meta_Element/Meta_Element.js" ></script>
+<script type="text/javascript" src="../js/Type/Element/Element.js" ></script>
+<script type="text/javascript" src="../js/Type/Element/NodeList.js" ></script>
+<script type="text/javascript" >
+var					obj = {},
+						prop = {"type":"null","key":"someKey","value":null},
+						template = {"type":
+						[
+							"null",
+							"Boolean",
+							"Number",
+							"String",
+							"Array",
+							"Object",
+						]};
+
+function		addProperty(  )
+{
+	object.appendChilds(createElements([((object.children.length) ? {"tag":"br"} : {}),{"tag":"span","child":jsonParams(prop, template)}], object.namespaceURI));
+}
+function		setObject(  )
+{
+	obj = {};
+	object.querySelectorAll("span").forEach(function(e)
+	{
+		var			param = paramsJson(e.children);
+
+		switch (param.type)
+		{
+			case ("null"):
+				obj[param.key] = null;
+				break;
+			case ("Boolean"):
+				obj[param.key] = (param.value) ? true : false;
+				break;
+			case ("Number"):
+				obj[param.key] = ~~param.value;
+				break;
+			case ("String"):
+				obj[param.key] = param.value || "";
+				break;
+			case ("Array"):
+				obj[param.key] = param.value;
+				break;
+			case ("Object"):
+				obj[param.key] = param.value;
+				break;
+		};
+	});
+}
+</script>
+
+<button class="tool" onclick="Javascript:addProperty();" >+</button>
+<button class="tool" onclick="Javascript:setObject();" >Apply</button>
+
+<div id="object" >
+</div>
+<script type="text/javascript" >
+</script>

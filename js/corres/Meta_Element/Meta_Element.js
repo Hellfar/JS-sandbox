@@ -1,21 +1,21 @@
 				function			createElements( elems, ns )
 				{
 					var				a_o = [];
-					
+
 					ns = ns || null;
 					switch (typeof (elems))
 					{
 						case ("string"):
 						{
 							var		o = document.createTextNode(elems);
-							
+
 							a_o.push(o);
 						};
 						break;
 						case ("object"):
 						{
 							var		l_elems;
-							
+
 							if (elems.constructor != Array)
 								elems = [elems];
 							l_elems = elems.length;
@@ -23,7 +23,7 @@
 							{
 								var	elem = elems[i],
 									o;
-								
+
 								if (typeof (elem.tag) != "undefined")
 								{
 									if (elem.tag == "#text")
@@ -33,7 +33,7 @@
 										o = document.createElementNS(ns, elem.tag);
 										delete (elem.tag);
 										if (typeof (elem.child) != "undefined")
-											o.appendChilds(createElements(elem.child));
+											o.appendChilds(createElements(elem.child, ns));
 										delete (elem.child);
 										for (attr in elem)
 											if (elem.hasOwnProperty(attr) && elem[attr])
@@ -59,17 +59,17 @@
 					var				params = [],
 									props = o.properties(),
 									l_props = props.length;
-					
+
 					if (!(templates))
 						templates = {};
-					
+
 					for (attr in o)
 					{
 						if (o.hasOwnProperty(attr))
 						{
 							var		input = {},
 									templateAttr = templates[attr] || null;
-							
+
 							switch (typeof (o[attr]))
 							{
 								case ("string"):
@@ -79,7 +79,7 @@
 									input.implement(o[attr]);
 								break;
 							};
-							console.log("input", input, typeof (templateAttr), templateAttr);
+							// console.log("input", input, typeof (templateAttr), templateAttr);
 							switch (typeof (templateAttr))
 							{
 								case ("string"):
@@ -125,7 +125,7 @@
 										else
 										{
 											input.implementWeak(templateAttr);
-											console.log("input2", input);
+											// console.log("input2", input);
 											break;
 										}
 									};
@@ -148,12 +148,12 @@
 					{
 						var			param = params[i],
 									name;
-						
+
 						if (param.name && (name = param.name.match(/^\s*([a-zA-Z]\w*)(\[\s*\])?\s*$/))[0])
 						{
 							var		key = name[1],
 									value = (param.type == "checkbox") ? ((param.checked) ? (param.value || null) : null) : (param.value || null);
-							
+
 							if (name[2])
 							{
 								if (typeof (element[key]) != "object" || element[key].constructor != Array)
@@ -164,6 +164,6 @@
 								element[key] = value;
 						}
 					}
-					
+
 					return (element);
 				}
