@@ -52,7 +52,7 @@
 						break;
 					}
 					return (a_o);
-				};
+				}
 
 				function			jsonParams( o, templates )
 				{
@@ -143,7 +143,7 @@
 				{
 					var				element = {},
 									l_params = params.length;
-					
+
 					for (var i = 0; i < l_params; i++)
 					{
 						var			param = params[i],

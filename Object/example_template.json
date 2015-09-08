@@ -1,0 +1,10 @@
+{
+	"all"			:
+	{
+		"default"	:"<input name=\"$key\" placeholder=\"$key\" $value?{value=\"$value\"} />",
+		"Array"		:"<select name=\"$key\" >\n$each{<option value=\"$entry\" $value==$entry?{selected=\"selected\"} >$entry</option>}</select>",
+		"Object"	:"$this",
+	},
+
+	"type"			:["rect", "circle", "line"],
+}
