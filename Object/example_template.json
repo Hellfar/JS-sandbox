@@ -1,10 +1,26 @@
+[
+	"Hypothesis:",
+
 {
 	"all"			:
 	{
 		"default"	:"<input name=\"$key\" placeholder=\"$key\" $value?{value=\"$value\"} />",
-		"Array"		:"<select name=\"$key\" >\n$each{<option value=\"$entry\" $value==$entry?{selected=\"selected\"} >$entry</option>}</select>",
+		"Array"		:"<select name=\"$key\" >\n$each{<option value=\"$entry\" $value==$entry?{selected=\"selected\"} >$entry</option>\n}</select>",
 		"Object"	:"$this",
 	},
 
 	"type"			:["rect", "circle", "line"],
-}
+},
+
+{
+	"all"			:
+	{
+		"default"	:{"tag":["input"],"name":["$key"],"placeholder":["$key"],"value":["$value","$value"]},
+		"Array"		:{"tag":["select"],"name":["$key"],"child":["$each",[{"tag":["option"],"value":["$entry"],"selected":["$value","$entry","selected"],"child":[["$entry"]]}]]},
+		"Object"	:"??",
+	},
+
+	"type"			:["rect", "circle", "line"],
+},
+
+]
