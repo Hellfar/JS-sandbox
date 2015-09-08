@@ -63,78 +63,76 @@
 					if (!(templates))
 						templates = {};
 
-					for (attr in o)
+					for (var i = 0; i < l_props; i++)
 					{
-						if (o.hasOwnProperty(attr))
+						var		attr = props[i],
+								input = {},
+								templateAttr = templates[attr] || null;
+
+						switch (typeof (o[attr]))
 						{
-							var		input = {},
-									templateAttr = templates[attr] || null;
-
-							switch (typeof (o[attr]))
-							{
-								case ("string"):
-									input.value = o[attr];
-								break;
-								case ("object"):
-									input.implement(o[attr]);
-								break;
-							};
-							// console.log("input", input, typeof (templateAttr), templateAttr);
-							switch (typeof (templateAttr))
-							{
-								case ("string"):
-									switch (templateAttr)
-									{
-										case ("textarea"):
-											input.implement({'tag':'textarea','name':attr,'placeholder':attr});
-										break;
-										default:
-											input.implement({'tag':'input','name':attr,'placeholder':attr,'type':templateAttr});
-										break;
-									};
+							case ("string"):
+								input.value = o[attr];
+							break;
+							case ("object"):
+								input.implement(o[attr]);
+							break;
+						};
+						// console.log("input", input, typeof (templateAttr), templateAttr);
+						switch (typeof (templateAttr))
+						{
+							case ("string"):
+								switch (templateAttr)
+								{
+									case ("textarea"):
+										input.implement({'tag':'textarea','name':attr,'placeholder':attr});
 									break;
-								case ("object"):
+									default:
+										input.implement({'tag':'input','name':attr,'placeholder':attr,'type':templateAttr});
+									break;
+								};
+								break;
+							case ("object"):
+								{
+									if (templateAttr == null)
+										;
+									else if (templateAttr.constructor == Array)
 									{
-										if (templateAttr == null)
-											;
-										else if (templateAttr.constructor == Array)
-										{
-											var	values = [];
+										var	values = [];
 
-											input.implement({'tag':'select','name':attr});
-											for (k in templateAttr)
-												if (templateAttr.hasOwnProperty(k))
+										input.implement({'tag':'select','name':attr});
+										for (k in templateAttr)
+											if (templateAttr.hasOwnProperty(k))
+											{
+												var	value = templateAttr[k];
+
+												if (!isNaN(k) && k.length)
 												{
-													var	value = templateAttr[k];
-
-													if (!isNaN(k) && k.length)
-													{
-														if (o[attr] == value)
-															values.push({'tag':'option','value':value,'selected':'selected','child':value});
-														else
-															values.push({'tag':'option','value':value,'child':value});
-													}
+													if (o[attr] == value)
+														values.push({'tag':'option','value':value,'selected':'selected','child':value});
 													else
-														input[k] = value;
+														values.push({'tag':'option','value':value,'child':value});
 												}
-											if (!(input['child']))
-												input['child'] = [];
-											input['child'] = input['child'].concat(values);
-											break;
-										}
-										else
-										{
-											input.implementWeak(templateAttr);
-											// console.log("input2", input);
-											break;
-										}
-									};
-								default:
-									input.implementWeak({'tag':'input','name':attr,'placeholder':attr});
-									break;
-							};
-							params.push(input);
-						}
+												else
+													input[k] = value;
+											}
+										if (!(input['child']))
+											input['child'] = [];
+										input['child'] = input['child'].concat(values);
+										break;
+									}
+									else
+									{
+										input.implementWeak(templateAttr);
+										// console.log("input2", input);
+										break;
+									}
+								};
+							default:
+								input.implementWeak({'tag':'input','name':attr,'placeholder':attr});
+								break;
+						};
+						params.push(input);
 					}
 
 					return (params);
