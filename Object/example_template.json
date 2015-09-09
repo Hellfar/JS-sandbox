@@ -16,7 +16,7 @@
 	"$all"			:
 	{
 		"default"	:{"tag":["input"],"name":["$key"],"placeholder":["$key"],"value":["$value","$value"]},
-		"Array"		:{"tag":["select"],"name":["$key"],"child":["$each",[{"tag":["option"],"value":["$entry"],"selected":["$value","$entry","selected"],"child":[["$entry"]]}]]},
+		"Array"		:{"tag":["select"],"name":["$key"],"child":["$each",{"tag":["option"],"value":["$entry"],"selected":["$value","$entry","selected"],"child":["$entry"]}]},
 		"Object"	:"??",
 	},
 

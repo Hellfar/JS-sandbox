@@ -179,60 +179,101 @@ Object.prototype.extract =
 Object.prototype.convert =
 				function			std_Object_convert( template )
 				{
-					function		setAttrConv( r_obj, form )
+					function		setAttrConv( form )
 					{
-						var			rowTuples = row.toTuples(),
-									props = form.properties(),
-									l_props = props.length;
+						var			obj = null;
 
-						for (var i = 0; i < l_props; i++)
+						if (form)
 						{
-							var		attr = props[i],
-									val = Object.prototype.clone(form[attr]);
+							var			rowTuples = row.toTuples(),
+										props = form.properties(),
+										l_props = props.length;
 
-							val.forEach(function(e,i,a)
+							obj = {};
+							for (var i = 0; i < l_props; i++)
 							{
-								rowTuples.forEach(function(tuple)
+								var		attr = props[i],
+										val = Object.prototype.clone(form[attr]);
+
+								val.forEach(function(e,i,a)
 								{
-									a[i] = a[i].replace.apply(a[i], tuple);
+									rowTuples.forEach(function(tuple)
+									{
+										if (Object.prototype.isEqual(a[i], tuple[0]))
+											a[i] = tuple[1];
+									});
 								});
-							});
-							console.log(val);
-							switch (val.length)
-							{
-								case (1):
-									r_obj[attr] = val[0];
-									break;
-								case (2):
-									if (val[0])
-										r_obj[attr] = val[1];
-									break;
-								case (2):
-									if (val[0] == val[1])
-										r_obj[attr] = val[2];
-									break;
+								switch (val.length)
+								{
+									case (1):
+										obj[attr] = val[0];
+										break;
+									case (2):
+										if (val[0])
+											obj[attr] = val[1];
+										break;
+									case (2):
+										if (val[0] == val[1])
+											obj[attr] = val[2];
+										break;
+								}
 							}
 						}
+
+						return (obj);
 					}
-					var				ret = {},
+					var				ret = [],
 									thisProps = this.properties(),
 									l_thisProps = thisProps.length,
 									template = template || {},
 									all = template["$all"] || {},
 									allDefault = all["default"],
-									row = {"$key":null,"$value":null};
+									row = {"$key":null,"$value":null,"$entry":null,"$push":null};
 
 					for (var i = 0; i < l_thisProps; i++)
 					{
 						var		key = thisProps[i],
 								value = this[key],
-								templateAttr = template[key] || null;
+								templateAttr = template[key] || null,
+								push,
+								isArray = false;
+
+						{
+							var	whatToPush;
+
+							if (Object.prototype.instanceOf.call(value, Array))
+							{
+								if (Object.prototype.instanceOf.call(templateAttr, Array))
+									whatToPush = value.concat(templateAttr);
+								else
+								{
+									whatToPush = value;
+									value = templateAttr;
+								}
+							}
+							else
+								if (templateAttr)
+									whatToPush = Object.prototype.clone(templateAttr);
+								else
+									whatToPush = value;
+							
+							isArray = Object.prototype.instanceOf.call((push = ret[ret.push(whatToPush) - 1]), Array);
+						};
 
 						row["$key"] = key;
 						row["$value"] = value;
-						if (allDefault !== undefined)
-							setAttrConv(ret, allDefault);
-						// ret[key] = value;
+						row["$push"] = push;
+						if (isArray)
+						{console.log("Array!!");
+							push.implement({});
+						}
+						if (all["default"] !== undefined)
+						{
+							if (push == null && all["default"] != null)
+								push = {};
+							push.implementWeak(setAttrConv(all["default"]));
+						}
+						console.log("end:", push);
 					}
 
 					return (ret);
