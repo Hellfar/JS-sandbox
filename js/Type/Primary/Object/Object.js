@@ -206,7 +206,7 @@ Object.prototype.convert =
 												a[i] = tuple[1];
 										});
 									});
-									// console.log(valPair);
+// console.log("row", row);
 									switch (valPair.length)
 									{
 										case (1):
@@ -214,7 +214,26 @@ Object.prototype.convert =
 											break;
 										case (2):
 											if (valPair[0])
-												obj[attr] = valPair[1];
+											{
+												var	val = valPair[1];
+
+												if (valPair[0] == "$each")
+												{
+													var	values = row["$push"],
+														l_values = values.length;
+// console.log(row);
+													val = [];
+													for (var e = 0; e < l_values; e++)
+													{
+														var	tmp = row["$entry"];
+
+														row["$entry"] = values[e];
+														val.push(setAttrConv(valPair[1]));
+														row["$entry"] = tmp;
+													}
+												}
+												obj[attr] = val;
+											}
 											break;
 										case (2):
 											if (valPair[0] == valPair[1])
@@ -266,12 +285,13 @@ Object.prototype.convert =
 						};
 						row["$key"] = key;
 						row["$value"] = value;
-						// row["$push"] = push;
+						row["$push"] = push;
+						// console.log(key, value, push);
 						for (var e = 0; e < l_props_all; e++)
 						{
 							var		type = props_all[e];
 
-							if (Object.getType(value) == type)
+							if (Object.getType(push) == type)
 							{
 								// console.log(type, value);
 								push = setAttrConv(all[props_all[e]]);
@@ -287,108 +307,6 @@ Object.prototype.convert =
 
 					return (ret);
 				};
-// Object.prototype.convert =
-// 				function			std_Object_convert( template )
-// 				{
-// 					function		setAttrConv( form )
-// 					{
-// 						var			obj = null;
-//
-// 						if (form)
-// 						{
-// 							var			rowTuples = row.toTuples(),
-// 										props = form.properties(),
-// 										l_props = props.length;
-//
-// 							obj = {};
-// 							for (var i = 0; i < l_props; i++)
-// 							{
-// 								var		attr = props[i],
-// 										val = Object.clone(form[attr]);
-//
-// 								val.forEach(function(e,i,a)
-// 								{
-// 									rowTuples.forEach(function(tuple)
-// 									{
-// 										if (Object.isEqual(a[i], tuple[0]))
-// 											a[i] = tuple[1];
-// 									});
-// 								});
-// 								switch (val.length)
-// 								{
-// 									case (1):
-// 										obj[attr] = val[0];
-// 										break;
-// 									case (2):
-// 										if (val[0])
-// 											obj[attr] = val[1];
-// 										break;
-// 									case (2):
-// 										if (val[0] == val[1])
-// 											obj[attr] = val[2];
-// 										break;
-// 								}
-// 							}
-// 						}
-//
-// 						return (obj);
-// 					}
-// 					var				ret = [],
-// 									thisProps = this.properties(),
-// 									l_thisProps = thisProps.length,
-// 									template = template || {},
-// 									all = template["$all"] || {},
-// 									allDefault = all["default"],
-// 									row = {"$key":null,"$value":null,"$entry":null,"$push":null};
-//
-// 					for (var i = 0; i < l_thisProps; i++)
-// 					{
-// 						var		key = thisProps[i],
-// 								value = this[key],
-// 								templateAttr = template[key] || null,
-// 								push,
-// 								isArray = false;
-//
-// 						{
-// 							if (Object.instanceOf.call(value, Array))
-// 							{
-// 								if (Object.instanceOf.call(templateAttr, Array))
-// 									push = value.concat(templateAttr);
-// 								else
-// 								{
-// 									push = value;
-// 									value = templateAttr;
-// 								}
-// 							}
-// 							else
-// 								if (templateAttr)
-// 									push = Object.clone(templateAttr);
-// 								else
-// 									push = value;
-//
-// 							isArray = Object.instanceOf.call(push, Array);
-// 						};
-//
-// 						row["$key"] = key;
-// 						row["$value"] = value;
-// 						row["$push"] = push;console.log("push", push);
-// 						if (isArray)
-// 						{console.log("Array!!");
-// 							push.implement({});
-// 						}
-// 						else if (all["default"] !== undefined)
-// 						{
-// 							if (push == null && all["default"] != null)
-// 								push = {};
-// 							if (push != null)
-// 								push.implementWeak(setAttrConv(all["default"]));
-// 						}
-// 						console.log("end:", push);
-// 						ret.push(push);
-// 					}
-//
-// 					return (ret);
-// 				};
 Object.prototype.properties =
 				function			std_Object_properties(  )
 				{

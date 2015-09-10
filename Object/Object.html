@@ -23,7 +23,7 @@ var					obj = {},
 						"$all"			:
 						{
 							"default"	:{"tag":["input"],"name":["$key"],"placeholder":["$key"],"value":["$value","$value"]},
-							"Array"		:{"tag":["select"],"name":["$key"],"child":["$each",[{"tag":["option"],"value":["$entry"],"selected":["$value","$entry","selected"],"child":[["$entry"]]}]]},
+							"Array"		:{"tag":["select"],"name":["$key"],"child":["$each",{"tag":["option"],"value":["$entry"],"selected":["$value","$entry","selected"],"child":["$entry"]}]},
 							"Object"	:"??",
 						},
 
@@ -39,7 +39,7 @@ var					obj = {},
 
 function		addProperty(  )
 {
-	object.appendChilds(createElements([((object.children.length) ? {"tag":"br"} : {}),{"tag":"span","child":jsonParams(prop, template)}], object.namespaceURI));
+	object.appendChilds(createElements([((object.children.length) ? {"tag":"br"} : {}),{"tag":"span","child":prop.convert(template)}], object.namespaceURI));
 }
 function		setObject(  )
 {
@@ -73,8 +73,8 @@ function		setObject(  )
 }
 </script>
 
-<!-- <button class="tool" onclick="Javascript:addProperty();" >+</button>
-<button class="tool" onclick="Javascript:setObject();" >Apply</button> -->
+<button class="tool" onclick="Javascript:addProperty();" >+</button>
+<button class="tool" onclick="Javascript:setObject();" >Apply</button>
 
 <div id="object" >
 </div>
