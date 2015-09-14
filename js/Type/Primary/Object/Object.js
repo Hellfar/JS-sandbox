@@ -287,23 +287,26 @@ Object.prototype.convert =
 						row["$key"] = key;
 						row["$value"] = value;
 						row["$push"] = push;
-						// console.log(key, value, push);
-						for (var e = 0; e < l_props_all; e++)
+// console.log(key, value, push);
+						if (push != "$null")
 						{
-							var		type = props_all[e];
-
-							if (Object.getType(push) == type)
+							for (var e = 0; e < l_props_all; e++)
 							{
-								// console.log(type, value);
-								push = setAttrConv(all[props_all[e]]);
-								unfound = false;
-								break;
+								var		type = props_all[e];
+
+								if (Object.getType(push) == type)
+								{
+									// console.log(type, value);
+									push = setAttrConv(all[props_all[e]]);
+									unfound = false;
+									break;
+								}
 							}
+							if (unfound)
+								push = setAttrConv(allDefault);
+							if (push !== undefined)
+								ret.push(push);
 						}
-						if (unfound)
-							push = setAttrConv(allDefault);
-						if (push !== undefined)
-							ret.push(push);
 					}
 
 					return (ret);

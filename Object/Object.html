@@ -47,7 +47,8 @@ function		setObject(  )
 	object.querySelectorAll("span").forEach(function(e)
 	{
 		var			param = paramsJson(e.children);
-console.log(e.getJSONForm());
+		var			test = e.getJSONForm();
+console.log(test);
 		switch (param.type)
 		{
 			case ("null"):
@@ -73,8 +74,8 @@ console.log(e.getJSONForm());
 }
 </script>
 
-<button class="tool" onclick="Javascript:addProperty();" >+</button>
-<button class="tool" onclick="Javascript:setObject();" >Apply</button>
+<!-- <button class="tool" onclick="Javascript:addProperty();" >+</button>
+<button class="tool" onclick="Javascript:setObject();" >Apply</button> -->
 
 <div id="object" >
 </div>

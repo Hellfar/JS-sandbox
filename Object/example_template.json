@@ -41,4 +41,29 @@
 					],
 },
 
+{
+	/* test to apply on type of every attribute */
+	"$all"			:
+	{
+		/* to apply on every attribute if none of other type has been validated */
+		"default"	:{"tag":["input"],"name":["$key"],"placeholder":["$key"],"value":["$value","$value"]},
+		/* to apply on attribute that are Array */
+		"Array"		:{"tag":["select"],"name":["$key"],"child":["$each",{"tag":["option"],"value":["$entry"],"selected":["$value","$entry","selected"],"child":["$entry"]}]},
+		/* to apply on attribute that are Object (not done yet) */
+		"Object"	:"??",
+	},
+
+	/* push replace for an attribute that has "type" as a name and set it as an Array (check bellow) */
+	"type"			:[
+						"null",
+						"Boolean",
+						"Number",
+						"String",
+						"Array",
+						"Object",
+					],
+	/* push replace for an attribute that has "size" as a name and set it as not to implement ("$null") */
+	"size"			:"$null",
+},
+
 ]
