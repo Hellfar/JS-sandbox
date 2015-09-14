@@ -206,6 +206,7 @@ Object.prototype.convert =
 												a[i] = tuple[1];
 										});
 									});
+// console.log(valPair);
 // console.log("row", row);
 									switch (valPair.length)
 									{
@@ -235,7 +236,7 @@ Object.prototype.convert =
 												obj[attr] = val;
 											}
 											break;
-										case (2):
+										case (3):
 											if (valPair[0] == valPair[1])
 												obj[attr] = valPair[2];
 											break;

@@ -221,3 +221,30 @@ Element.prototype.empty =
 
 					return (this);
 				};
+Element.prototype.getJSONForm =
+				function			std_Element_getJSONForm(  )
+				{
+					var				json = {"tag":this.nodeName.toLowerCase()},
+									thisAttrs = this.attributes,
+									l_thisAttrs = thisAttrs.length,
+									childs = this.children,
+									l_childs = childs.length,
+									thisChilds = [];
+
+					for (var i = 0; i < l_thisAttrs; i++)
+					{
+						var			attr = thisAttrs[i];
+
+						json[attr.nodeName] = attr.nodeValue;
+					}
+					if (l_childs)
+					{
+						for (var i = 0; i < l_childs; i++)
+							thisChilds.push(childs[i].getJSONForm());
+						json["child"] = thisChilds;
+					}
+					if (this.value)
+						json["value"] = this.value;
+
+					return (json);
+				}

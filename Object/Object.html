@@ -17,7 +17,7 @@
 <script type="text/javascript" src="../js/Type/Element/NodeList.js" ></script>
 <script type="text/javascript" >
 var					obj = {},
-					prop = {"type":"null","key":"someKey","value":null},
+					prop = {"type":"String","key":"someKey","value":null},
 					template =
 					{
 						"$all"			:
@@ -47,7 +47,7 @@ function		setObject(  )
 	object.querySelectorAll("span").forEach(function(e)
 	{
 		var			param = paramsJson(e.children);
-
+console.log(e.getJSONForm());
 		switch (param.type)
 		{
 			case ("null"):
