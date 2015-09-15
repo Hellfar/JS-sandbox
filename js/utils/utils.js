@@ -56,16 +56,16 @@ function	require( fileName, callback )
 	{ // very old way.
 		// var body = document.getElementsByTagName("body")[0];
 		// var script = document.createElement('script');
-		
+
 		// if (id != undefined)
 			// script.id = id;
-		
+
 		// script.type = "text/javascript";
 		// body.appendChild(document.createTextNode("\n"));
 		// body.appendChild(script);
 		// script.src = fileName;
 	};
-	
+
 	{ // in the past was the only way that could synchronously include a document.
 		var	id = 'lib_js_'+ arguments[0];
 
