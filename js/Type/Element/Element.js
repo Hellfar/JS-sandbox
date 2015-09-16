@@ -114,7 +114,7 @@ Element.prototype.siblingElements =
 Element.prototype.getChild =
 				function			std_Element_getChild( key )
 				{
-					if (isNumber(key))
+					if (!isNaN(parseFloat(key)) && isFinite(key))
 						return (this.childNodes[key] || null);
 					else if (key == undefined)
 						return (this.childNodes);
@@ -124,7 +124,7 @@ Element.prototype.getChild =
 Element.prototype.getChildElement =
 				function			std_Element_getChildElement( key )
 				{
-					if (isNumber(key))
+					if (!isNaN(parseFloat(key)) && isFinite(key))
 						return (this.children[key] || null);
 					else if (key == undefined)
 						return (this.children);
@@ -202,10 +202,15 @@ Element.prototype.setAttributesNSWeak =
 Element.prototype.appendChilds =
 				function			std_Element_appendChilds( childs )
 				{
-					var				l_childs = childs.length;
+					if (childs instanceof Array || childs instanceof NodeList)
+					{
+						var				l_childs = childs.length;
 
-					for (var i = 0; i < l_childs; i++)
-						this.appendChild(childs[i]);
+						for (var i = 0; i < l_childs; i++)
+							this.appendChild(childs[i]);
+					}
+					else
+						this.appendChild(childs);
 
 					return (this);
 				};

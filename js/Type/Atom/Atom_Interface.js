@@ -1,7 +1,7 @@
 Atom.prototype.interface =
 				function			std_Atom_interface( parent )
 				{
-					this.node = parent.addElements(
+					parent.appendChilds(this.node = createElements(
 					{
 						'tag'		:'div',
 						'class'		:'atom',
@@ -73,7 +73,7 @@ Atom.prototype.interface =
 								//~ },
 							//~ },
 						],
-					}).first().implement({'atom'	:this,});
+					}).first().implement({'atom'	:this,}));
 				};
 Atom.prototype.interface_synapses =
 				function			std_Atom_interface_synapses(  )
@@ -81,7 +81,7 @@ Atom.prototype.interface_synapses =
 					var				node = this.node,
 									synapse = node.querySelectorAll('.synapse'),
 									operator = node.querySelectorAll('.operator');
-					
+
 					synapse.splice.apply(synapse, arguments).toArray().forEach(function(e){e.remove();});
 					operator.splice.apply(operator, arguments).toArray().forEach(function(e){e.remove();});
 				};
@@ -96,16 +96,16 @@ Atom.prototype.interface_refresh =
 									l_pool = pool.length,
 									synapses = node.querySelectorAll('.synapse input'),
 									l_synapses = synapses.length;
-					
+
 					{// synapses processes.
 						var			previous = node.previousElementSibling || null,
 									recept = (previous) ? previous.atom.pool : [];
-						
+
 						for (var i = 0; i < l_synapses; i++)
 						{
 							var		value = synapses[i].value,
 									o = null;
-							
+
 							switch (value)
 							{
 								case (""):
@@ -121,13 +121,13 @@ Atom.prototype.interface_refresh =
 						};
 						l_stand = stand.length;
 					};
-					
+
 					{// operators
 						var			operators = [],
 									opes = node.querySelector('.operators'),
 									l_n_operators = l_synapses - node.querySelectorAll('.operator').length,
 									params = functions[templates["name"][0]][0];
-						
+
 						for (var i = 0; i < l_n_operators; i++)
 						{
 							var		t_params = params.clone(),
@@ -145,19 +145,19 @@ Atom.prototype.interface_refresh =
 						});
 						l_pool = pool.length;
 					};
-					
+
 					{// output
 						var			output = node.querySelector('.output');
-						
+
 						output.innerHTML = (l_pool) ? '' : '**EMPTY**';
 						for (var i = 0; i < l_pool; i++)
 							output.addElements([(i > 0) ? {'tag':'br'} : {}, {'tag':'#text','value':pool[i]}]);
 					};
-					
+
 					//~ {// waiter
 						//~ var			waiters = node.querySelectorAll('.synapsesOut input'),
 									//~ l_waiters = waiters.length;
-						//~ 
+						//~
 						//~ console.log(waiters);
 					//~ };
 				};

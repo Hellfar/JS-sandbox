@@ -112,7 +112,7 @@ HTMLTableSectionElement.prototype.getElem =
 				function			std_HTMLTableSectionElement_getElem(  )
 				{
 					var				l_arguments = arguments.length;
-					
+
 					if (l_arguments > 1)
 						return (this.getCell.apply(this, arguments));
 					else if (l_arguments > 0)
@@ -124,7 +124,7 @@ HTMLTableSectionElement.prototype.getElemWeak =
 				function			std_HTMLTableSectionElement_getElemWeak(  )
 				{
 					var				l_arguments = arguments.length;
-					
+
 					if (l_arguments > 1)
 						return (this.getCellWeak.apply(this, arguments));
 					else if (l_arguments > 0)
