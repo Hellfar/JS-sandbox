@@ -3,7 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en" dir="ltr">
 	<head>
 		<meta charset="UTF-8" >
-		<title></title>
+		<title>Expression</title>
+		<script type="text/javascript" src="peg-0.9.0.js" ></script>
 	</head>
 	<body>
 		<div id="workspace" >
@@ -28,7 +29,7 @@ Array.prototype.search =
 				function			std_Array_search( callback, args )
 				{
 					var				l = this.length;
-					
+
 					for (var i = 0; i < l; i++)
 						if (callback.apply(null, [this[i]].concat(args)))
 							return (i);
@@ -72,7 +73,7 @@ Expr.prototype.binOpe =
 								operator = operator.value,
 								right = (dic[right.type].type == 'number') ? ~~right.value : right.value,
 								left = (dic[left.type].type == 'number') ? ~~left.value : left.value;
-					
+
 					switch (operator)
 					{
 						case ('+'):
@@ -101,7 +102,7 @@ Expr.prototype.groupParser =
 				function	std_Expr_groupParser( e, dic, seeking )
 				{
 					var		type = dic[e.type];
-					
+
 					/*console.log(e, type.type, seeking, type.type == 'group_end');*/
 					if (dic[e.type].type == 'group')
 						seeking.unshift(dic[e.type].closure);
@@ -114,10 +115,10 @@ Expr.prototype.tokenize =
 				function		std_Expr_tokenize( s_exprs )
 				{
 					var			ret = [],
-								a_exprs = s_exprs.split(';').filter(e=>e.length)
+								a_exprs = s_exprs.split(';').filter(function(e){e.length})
 								l_a_exprs = a_exprs.length,
 								dicKeys = this.dicInterp.properties(),
-								regs = dicKeys.map(e=>this.dicInterp[e].state),
+								regs = dicKeys.map(function(e){this.dicInterp[e].state}),
 								l_regs = regs.length;
 
 					for (var i = 0; i < l_a_exprs; i++)
@@ -135,7 +136,7 @@ Expr.prototype.tokenize =
 								if ((t_val = expr.match(regs[e])) && dic.type != 'binary'
 									|| (ret.last() != undefined && dic.type == 'binary'
 										&& dic.left.split(',').indexOf(ret.last().type) != -1))
-									if (t_val = t_val.testIf(e=>e.index==0, null))
+									if (t_val = t_val.testIf(function(e){e.index==0, null}))
 									{
 										t_val = t_val[0];
 										break;
@@ -184,7 +185,7 @@ Expr.prototype.polishize =
 								};
 								break;
 						}
-					
+
 					return (ret);
 				};
 Expr.prototype.polishizeAll =
@@ -192,10 +193,10 @@ Expr.prototype.polishizeAll =
 				{
 					var			ret = [],
 								l_tokenSets = tokenSets.length;
-					
+
 					for (var i = 0; i < l_tokenSets; i++)
 						ret.push(this.polishize(tokenSets[i]));
-					
+
 					return (ret);
 				};
 Expr.prototype.set =
@@ -262,10 +263,10 @@ Expr.prototype.toString =
 
 				function		calc(  )
 				{
-					var			inputs = Array.prototype.slice.call(document.querySelectorAll("#entries input")).map(e=>e.value).filter(e=>e.length),
+					var			inputs = Array.prototype.slice.call(document.querySelectorAll("#entries input")).map(function(e){e.value}).filter(function(e){e.length}),
 								l_inputs = inputs.length,
 								exprs = new Expr();
-					
+
 					output.innerHTML = "";
 					for (var i = 0; i < l_inputs; i++)
 						exprs.set(inputs[i]);
