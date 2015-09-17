@@ -5,6 +5,8 @@
 		<meta charset="UTF-8" >
 		<title>Expression</title>
 		<script type="text/javascript" src="peg-0.9.0.js" ></script>
+		<script type="text/javascript" src="../js/Type/Primary/Object/Object.js" ></script>
+		<script type="text/javascript" src="../js/Type/Primary/Array/Array.js" ></script>
 	</head>
 	<body>
 		<div id="workspace" >
@@ -12,40 +14,6 @@
 			<input type="button" value="add an expression" onclick="Javascript:addElements(NS['html'], entries, [{'tag':'br'},{'tag':'input','placeholder':'expr','value':'4*(1+2+3)-5+-6'}]);" /><input type="button" value="evaluate" onclick="Javascript:calc();" />
 			<div id="entries" ></div>
 			<script>
-Object.prototype.properties =
-				function			std_Object_properties(  )
-				{
-					return (Object.getOwnPropertyNames(this));
-				};
-Object.prototype.testIf =
-				function			std_Object_testIf( callback, defVal, args )
-				{
-					if (callback.apply(null, [this].concat(args)))
-						return (this);
-
-					return (defVal);
-				};
-Array.prototype.search =
-				function			std_Array_search( callback, args )
-				{
-					var				l = this.length;
-
-					for (var i = 0; i < l; i++)
-						if (callback.apply(null, [this[i]].concat(args)))
-							return (i);
-
-					return (-1);
-				};
-Array.prototype.first =
-				function			std_Array_first(  )
-				{
-					return (this.slice(0, 1)[0]);
-				};
-Array.prototype.last =
-				function			std_Array_last(  )
-				{
-					return (this.slice(-1)[0]);
-				};
 function		Expr(  )
 {
 	var			l_arguments = arguments.length;
@@ -115,10 +83,10 @@ Expr.prototype.tokenize =
 				function		std_Expr_tokenize( s_exprs )
 				{
 					var			ret = [],
-								a_exprs = s_exprs.split(';').filter(function(e){e.length})
+								a_exprs = s_exprs.split(';').filter(function(e){return (e.length);})
 								l_a_exprs = a_exprs.length,
 								dicKeys = this.dicInterp.properties(),
-								regs = dicKeys.map(function(e){this.dicInterp[e].state}),
+								regs = dicKeys.map(function(e){return (this.dicInterp[e].state);}, this),
 								l_regs = regs.length;
 
 					for (var i = 0; i < l_a_exprs; i++)
@@ -136,7 +104,7 @@ Expr.prototype.tokenize =
 								if ((t_val = expr.match(regs[e])) && dic.type != 'binary'
 									|| (ret.last() != undefined && dic.type == 'binary'
 										&& dic.left.split(',').indexOf(ret.last().type) != -1))
-									if (t_val = t_val.testIf(function(e){e.index==0, null}))
+									if (t_val = t_val.testIf(function(e){return (e.index==0);}, null))
 									{
 										t_val = t_val[0];
 										break;
@@ -263,7 +231,7 @@ Expr.prototype.toString =
 
 				function		calc(  )
 				{
-					var			inputs = Array.prototype.slice.call(document.querySelectorAll("#entries input")).map(function(e){e.value}).filter(function(e){e.length}),
+					var			inputs = Array.prototype.slice.call(document.querySelectorAll("#entries input")).map(function(e){return (e.value);}).filter(function(e){return (e.length);}),
 								l_inputs = inputs.length,
 								exprs = new Expr();
 

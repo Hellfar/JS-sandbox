@@ -82,6 +82,14 @@ Object.prototype.isEqual =
 
 					return (true);
 				};
+Object.prototype.testIf =
+				function			std_Object_testIf( callback, defVal, args )
+				{
+					if (callback.apply(null, [this].concat(args)))
+						return (this);
+
+					return (defVal);
+				};
 Object.prototype.implement =
 				function			std_Object_implement( r_obj, fun )
 				{
