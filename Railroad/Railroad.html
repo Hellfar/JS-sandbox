@@ -1,0 +1,51 @@
+<title>Railroad</title>
+<script type="text/javascript" src="../js/extern/PEG/peg-0.9.0.js" ></script>
+<script type="text/javascript" src="../js/Type/Primary/Object/Object.js" ></script>
+<script type="text/javascript" src="../js/Type/Primary/Array/Array.js" ></script>
+<script type="text/javascript" src="../js/Type/Element/Element.js" ></script>
+<script type="text/javascript" src="../js/corres/Meta_Element/Meta_Element.js" ></script>
+<textarea id="diagramSource" >Diagram()</textarea>
+<div id="script" style="display:none;" >
+	{
+		var	funs =
+		{
+			"Diagram":	function( params )
+			{
+				var		result = "&lt;svg class=\"railroad-diagram\" width=\"81\" height=\"60\" &gt;&lt;g transform=\"translate(.5 .5)\" &gt;&lt;path d=\"M 20 20 v 20 m 10 -20 v 20 m -10 -10 h 20.5\" &gt;&lt;/path&gt;&lt;path d=\"M 40 30 h 20 m -10 -10 v 20 m 10 -20 v 20\" &gt;&lt;/path&gt;";
+
+				for (var i = 0; i < params.length; i++)
+					result += params[i];
+
+				return (result +"&lt;/g&gt;&lt;/svg&gt;");
+			}
+		};
+	}
+
+	Call "Call"
+		= name:NameCall "(" _ params:Params ")" { console.log(params);return (funs[name](params)); }
+
+	Params
+		= (Param _)*
+
+	Param
+		= Call
+		/ String
+
+	NameCall
+		= name:[a-zA-Z_]+ { return name.join(""); }
+
+	String
+		= "\"" str:(.*) "\"" { return str.join(""); }
+
+	_ "whitespace"
+		= [ \t\n\r]*
+</div>
+<input type="button" onclick="Javascript:solve();" value="evaluate" />
+<script>
+	var				expreser = PEG.buildParser(document.querySelector('#script').textContent);
+
+	function		solve(  )
+	{
+		console.log(expreser.parse(diagramSource.value));
+	}
+</script>
