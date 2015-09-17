@@ -41,7 +41,7 @@ Atom.prototype.interface =
 								{
 									'tag'			:'button',
 									'child'			:'Stand',
-									'onclick'		:'Javascript:var s=this.siblingElements(\'.synapse\');this.parent().addElements({\'tag\':\'span\',\'class\':\'synapse\',\'child\':[{\'tag\':\'br\'},{\'tag\':\'input\',\'placeholder\':\'synapse Key\','+/*\'onkeyup\':\'Javascript:if (!(this.t)){this.t=window.setTimeout(function(that){that.parent(\\\'.atom\\\').atom.synapse(that.value);delete(that.t);}, 1000, this);};\'*/'},{\'tag\':\'button\',\'onclick\':\'this.parent(\\\'.atom\\\').atom.synapses(this.parent(\\\'.synapse\\\').siblingElements(\\\'.synapse\\\').position, 1);\',\'child\':\'o\'}]});',
+									'onclick'		:'Javascript:var s=this.siblingElements(\'.synapse\'),parent=this.parent();parent.appendChilds(createElements({\'tag\':\'span\',\'class\':\'synapse\',\'child\':[{\'tag\':\'br\'},{\'tag\':\'input\',\'placeholder\':\'synapse Key\','+/*\'onkeyup\':\'Javascript:if (!(this.t)){this.t=window.setTimeout(function(that){that.parent(\\\'.atom\\\').atom.synapse(that.value);delete(that.t);}, 1000, this);};\'*/'},{\'tag\':\'button\',\'onclick\':\'this.parent(\\\'.atom\\\').atom.synapses(this.parent(\\\'.synapse\\\').siblingElements(\\\'.synapse\\\').position, 1);\',\'child\':\'o\'}]}, parent.namespaceURI));',
 								},
 							},
 							{'tag'	:'hr'},
@@ -73,7 +73,7 @@ Atom.prototype.interface =
 								//~ },
 							//~ },
 						],
-					}).first().implement({'atom'	:this,}));
+					}, parent.namespaceURI).first().implement({'atom'	:this,}));
 				};
 Atom.prototype.interface_synapses =
 				function			std_Atom_interface_synapses(  )
@@ -137,7 +137,7 @@ Atom.prototype.interface_refresh =
 								t_params[functions[t_params.name][1]] = (stand[i]) ? stand[i].toString() : null;
 							operators.push({'tag':'span','class':'operator'+ ((opes.querySelector('button').innerHTML == '+') ? ' reduce' : ''),'child':[{'tag':'br'}].concat(jsonParams(t_params, t_templates))});
 						};
-						opes.addElements(operators);
+						opes.appendChilds(createElements(operators, opes.namespaceURI));
 						node.querySelectorAll('.operator').toArray().forEach(function(e, i)
 						{
 							params = paramsJson(e.childNodes);
@@ -151,7 +151,7 @@ Atom.prototype.interface_refresh =
 
 						output.innerHTML = (l_pool) ? '' : '**EMPTY**';
 						for (var i = 0; i < l_pool; i++)
-							output.addElements([(i > 0) ? {'tag':'br'} : {}, {'tag':'#text','value':pool[i]}]);
+							output.appendChilds(createElements([(i > 0) ? {'tag':'br'} : {}, {'tag':'#text','value':pool[i]}], output.namespaceURI));
 					};
 
 					//~ {// waiter
