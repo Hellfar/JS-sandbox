@@ -6,36 +6,35 @@
 <script type="text/javascript" src="../js/corres/Meta_Element/Meta_Element.js" ></script>
 <textarea id="diagramSource" >Diagram()</textarea>
 <div id="script" style="display:none;" >
-	{
-		var	funs =
-		{
-			"Diagram":	function( params )
-			{
-				var		result = "&lt;svg class=\"railroad-diagram\" width=\"81\" height=\"60\" &gt;&lt;g transform=\"translate(.5 .5)\" &gt;&lt;path d=\"M 20 20 v 20 m 10 -20 v 20 m -10 -10 h 20.5\" &gt;&lt;/path&gt;&lt;path d=\"M 40 30 h 20 m -10 -10 v 20 m 10 -20 v 20\" &gt;&lt;/path&gt;";
-
-				for (var i = 0; i < params.length; i++)
-					result += params[i];
-
-				return (result +"&lt;/g&gt;&lt;/svg&gt;");
-			}
-		};
-	}
-
 	Call "Call"
-		= name:NameCall "(" _ params:Params ")" { console.log(params);return (funs[name](params)); }
+		= name:NameCall "(" _ params:Params ")"
+		{
+			if (typeof (functionPool) == "function")
+				return (functionPool(name, params));
+		}
 
 	Params
-		= (Param _)*
+		= params:(Param _)*
+		{
+			console.log(window);
+			return (params);
+		}
 
 	Param
 		= Call
 		/ String
 
 	NameCall
-		= name:[a-zA-Z_]+ { return name.join(""); }
+		= [a-zA-Z_]+
+		{
+			return (text());
+		}
 
 	String
-		= "\"" str:(.*) "\"" { return str.join(""); }
+		= "\"" str:[^\"]+ "\""
+		{
+			return (str.join(""));
+		}
 
 	_ "whitespace"
 		= [ \t\n\r]*
@@ -43,6 +42,23 @@
 <input type="button" onclick="Javascript:solve();" value="evaluate" />
 <script>
 	var				expreser = PEG.buildParser(document.querySelector('#script').textContent);
+	// var	funs =
+	// {
+	// 	"Diagram":	function( name, params )
+	// 	{
+	// 		<!-- var		result = "&lt;svg class=\"railroad-diagram\" width=\"81\" height=\"60\" &gt;&lt;g transform=\"translate(.5 .5)\" &gt;&lt;path d=\"M 20 20 v 20 m 10 -20 v 20 m -10 -10 h 20.5\" &gt;&lt;/path&gt;&lt;path d=\"M 40 30 h 20 m -10 -10 v 20 m 10 -20 v 20\" &gt;&lt;/path&gt;";
+	//
+	// 		for (var i = 0; i < params.length; i++)
+	// 			result += params[i];
+	//
+	// 		return (result +"&lt;/g&gt;&lt;/svg&gt;"); -->
+	// 		return (params);
+	// 	},
+	// 	"Default":	function( name, params )
+	// 	{
+	// 		return (name +"() function is not found.");
+	// 	},
+	// };
 
 	function		solve(  )
 	{
