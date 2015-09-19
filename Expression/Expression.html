@@ -62,69 +62,21 @@ _ "whitespace"
   = [ \t\n\r]*
 			</div>
 			<script>
+				var				expressor = PEG.buildParser(document.querySelector('#script').textContent);
 				function		calc(  )
 				{
 					var			inputs = Array.prototype.slice.call(document.querySelectorAll("#entries input")).map(function(e){return (e.value);}).filter(function(e){return (e.length);}),
-								l_inputs = inputs.length,
-								expreser = PEG.buildParser(document.querySelector('#script').textContent);
+								l_inputs = inputs.length;
 
 					output.innerHTML = "";
 					for (var i = 0; i < l_inputs; i++)
-						output.innerHTML += expreser.parse(inputs[i]) +"<br />";
+						output.innerHTML += expressor.parse(inputs[i]) +"<br />";
 				}
 
 				var				NS = {
 					'html'		:'http://www.w3.org/1999/xhtml',
 					'svg'		:'http://www.w3.org/2000/svg'
 				};
-
-				function			addElements( ns, parent, elems )
-				{
-					var				a_o = [];
-
-					switch (typeof(elems))
-					{
-						case ("string"):
-						{
-							var		o = document.createTextNode(elems);
-
-							parent.appendChild(o);
-							a_o.push(o);
-						};
-						break;
-						case ("object"):
-						{
-							var		l_elems;
-
-							if (elems.constructor != Array)
-								elems = [elems];
-							l_elems = elems.length;
-							for (var i = 0; i < l_elems; i++)
-							{
-								var	elem = elems[i],
-									o;
-
-								if (elem.tag == "#text")
-									o = document.createTextNode(elem.value);
-								else
-								{
-									o = document.createElementNS(ns, elem.tag);
-									delete (elem.tag);
-									if (typeof (elem.child) != "undefined")
-										addElements(ns, o, elem.child);
-									delete (elem.child);
-									for (attr in elem)
-										if (elem.hasOwnProperty(attr) && elem[attr])
-											o.setAttributeNS(null, attr, elem[attr]);
-								}
-								parent.appendChild(o);
-								a_o.push(o);
-							}
-						};
-						break;
-					}
-					return (a_o);
-				}
 			</script>
 		</div>
 	</body>
