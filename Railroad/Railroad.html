@@ -1,67 +1,201 @@
-<title>Railroad</title>
-<script type="text/javascript" src="../js/extern/PEG/peg-0.9.0.js" ></script>
-<script type="text/javascript" src="../js/Type/Primary/Object/Object.js" ></script>
-<script type="text/javascript" src="../js/Type/Primary/Array/Array.js" ></script>
-<script type="text/javascript" src="../js/Type/Element/Element.js" ></script>
-<script type="text/javascript" src="../js/corres/Meta_Element/Meta_Element.js" ></script>
-<textarea id="diagramSource" >Diagram()</textarea>
-<div id="script" style="display:none;" >
-	Call "Call"
-		= name:NameCall "(" _ params:Params ")"
-		{
-			if (typeof (functionPool) == "function")
-				return (functionPool(name, params));
-		}
-
-	Params
-		= params:(Param _)*
-		{
-			console.log(window);
-			return (params);
-		}
-
-	Param
-		= Call
-		/ String
-
-	NameCall
-		= [a-zA-Z_]+
-		{
-			return (text());
-		}
-
-	String
-		= "\"" str:[^\"]+ "\""
-		{
-			return (str.join(""));
-		}
-
-	_ "whitespace"
-		= [ \t\n\r]*
-</div>
-<input type="button" onclick="Javascript:solve();" value="evaluate" />
-<script>
-	var				expreser = PEG.buildParser(document.querySelector('#script').textContent);
-	// var	funs =
-	// {
-	// 	"Diagram":	function( name, params )
-	// 	{
-	// 		<!-- var		result = "&lt;svg class=\"railroad-diagram\" width=\"81\" height=\"60\" &gt;&lt;g transform=\"translate(.5 .5)\" &gt;&lt;path d=\"M 20 20 v 20 m 10 -20 v 20 m -10 -10 h 20.5\" &gt;&lt;/path&gt;&lt;path d=\"M 40 30 h 20 m -10 -10 v 20 m 10 -20 v 20\" &gt;&lt;/path&gt;";
-	//
-	// 		for (var i = 0; i < params.length; i++)
-	// 			result += params[i];
-	//
-	// 		return (result +"&lt;/g&gt;&lt;/svg&gt;"); -->
-	// 		return (params);
-	// 	},
-	// 	"Default":	function( name, params )
-	// 	{
-	// 		return (name +"() function is not found.");
-	// 	},
-	// };
-
-	function		solve(  )
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Railroad</title>
+		<script type="text/javascript" src="../js/extern/PEG/peg-0.9.0.js" ></script>
+		<script type="text/javascript" src="../js/Type/Primary/Object/Object.js" ></script>
+		<script type="text/javascript" src="../js/Type/Primary/Array/Array.js" ></script>
+		<script type="text/javascript" src="../js/Type/Element/Element.js" ></script>
+		<script type="text/javascript" src="../js/corres/Meta_Element/Meta_Element.js" ></script>
+		<style>
+svg.railroad-diagram
+{
+	background-color:	hsl(30, 20%, 95%);
+}
+svg.railroad-diagram path
+{
+	stroke-width:		3;
+	stroke:				black;
+	fill:				rgba(0, 0, 0, 0);
+}
+svg.railroad-diagram text
+{
+	font:				bold 14px monospace;
+	text-anchor:		middle;
+}
+svg.railroad-diagram text.label
+{
+	text-anchor:		start;
+}
+svg.railroad-diagram text.comment
+{
+	font:				italic 12px monospace;
+}
+svg.railroad-diagram rect
+{
+	stroke-width:		3;
+	stroke:				black;
+	fill:				hsl(120, 100%, 90%);
+}
+		</style>
+	</head>
+	<body>
+		<div id="output" ></div>
+		<textarea id="diagramSource" >Diagram()</textarea>
+		<script type="text/PEG" id="script" >
+Call "Call"
+	= name:NameCall "(" _ params:Params ")"
 	{
-		console.log(expreser.parse(diagramSource.value));
+		if (typeof (functionPool) == "function")
+			return (functionPool(name, params));
+		return (null);
 	}
-</script>
+
+Params
+	= params:(Param _)*
+	{
+		return (params.map(function (e){return (e[0]);}));
+	}
+
+Param
+	= Call
+	/ String
+
+NameCall
+	= [a-zA-Z_]+
+	{
+		return (text());
+	}
+
+String
+	= "\"" str:[^\"]* "\""
+	{
+		return (str.join(""));
+	}
+
+_ "whitespace"
+	= [ \t\n\r]*
+		</script>
+		<input type="button" onclick="Javascript:solve();" value="evaluate" />
+		<script>
+var				expreser = PEG.buildParser(document.querySelector('#script').textContent);
+
+function		functionPool( name, params )
+{
+	var			funs =
+	{
+		'Diagram':
+		function ( params )
+		{
+			var		result =
+			{
+				"tag"					:"svg",
+				"class"					:"railroad-diagram",
+				"width"					:"81",
+				"height"				:"60",
+				"child"					:
+				[
+					{
+						"tag"			:"g",
+						"transform"		:"translate(.5 .5)",
+						"child"			:
+						[
+							{
+								"tag"	:"path",
+								"d"		:"M 20 20 v 20 m 10 -20 v 20 m -10 -10 h 20.5"
+							},
+							{
+								"tag"	:"path",
+								"d"		:"M 40 30 h 20 m -10 -10 v 20 m 10 -20 v 20"
+							},
+						]
+					},
+				]
+			};
+
+			// for (var i = 0; i < params.length; i++)
+			// 	result += params[i];
+
+			return (result);
+		},
+		'Sequence':
+		function ( params )
+		{
+			var		result =
+			{
+				"tag"					:"text",
+				"child"					:""
+			};
+
+			return (result);
+		},
+		'Choice':
+		function ( params )
+		{
+			var		result = {};
+
+			return (result);
+		},
+		'Optional':
+		function ( params )
+		{
+			var		result = {};
+
+			return (result);
+		},
+		'OneOrMore':
+		function ( params )
+		{
+			var		result = {};
+
+			return (result);
+		},
+		'ZeroOrMore':
+		function ( params )
+		{
+			var		result = {};
+
+			return (result);
+		},
+		'Terminal':
+		function ( params )
+		{
+			var		result = {};
+
+			return (result);
+		},
+		'NonTerminal':
+		function ( params )
+		{
+			var		result = {};
+
+			return (result);
+		},
+		'Comment':
+		function ( params )
+		{
+			var		result = {};
+
+			return (result);
+		},
+		'Skip':
+		function ( params )
+		{
+			var		result = {};
+
+			return (result);
+		},
+	};
+	
+	if (typeof (funs[name]) == "function")
+		return (funs[name](params));
+	return (null);
+}
+function		solve(  )
+{
+	output.innerHTML = '';
+	output.appendChilds(createElements(expreser.parse(diagramSource.value), "http://www.w3.org/2000/svg"));
+}
+		</script>
+	</body>
+</html>
