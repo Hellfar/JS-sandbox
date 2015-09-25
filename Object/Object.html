@@ -46,7 +46,7 @@ function		setObject(  )
 	obj = {};
 	object.querySelectorAll("span").forEach(function(e)
 	{
-		var			param = paramsJson(e.children);
+		var			param = paramsJson(e.children);console.log();
 		var			test = e.getJSONForm();
 console.log(test);
 		switch (param.type)
