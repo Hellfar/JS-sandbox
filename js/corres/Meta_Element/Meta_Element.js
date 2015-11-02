@@ -30,7 +30,10 @@
 										o = document.createTextNode(elem.value);
 									else
 									{
-										o = document.createElementNS(ns, elem.tag);
+										if (ns)
+											o = document.createElementNS(ns, elem.tag);
+										else
+											o = document.createElement(elem.tag);
 										delete (elem.tag);
 										if (typeof (elem.child) != "undefined")
 											o.appendChilds(createElements(elem.child, ns));
@@ -141,7 +144,7 @@
 				{
 					var				element = {},
 									l_params = params.length;
-					
+
 					for (var i = 0; i < l_params; i++)
 					{
 						var			param = params[i],
