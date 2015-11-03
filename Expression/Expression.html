@@ -15,7 +15,7 @@
 			<div id="output" ></div>
 			<input type="button" value="add an expression" onclick="Javascript:entries.appendChilds(createElements([{'tag':'br'},{'tag':'input','placeholder':'expr','value':'4*(1+2+3)'}], entries.namespaceURI));" /><input type="button" value="evaluate" onclick="Javascript:calc();" />
 			<div id="entries" ></div>
-			<script id="script" type="expr/BNF">% <![CDATA[
+			<script id="script" type="expr/BNF">
 /*
  * Simple Arithmetics Grammar
  * ==========================
@@ -60,7 +60,7 @@ Integer "integer"
 
 _ "whitespace"
 	= [ \t\n\r]*
-%]]></script>
+</script>
 			<script>
 				var				expressor = PEG.buildParser(document.querySelector('#script').textContent);
 				function		calc(  )
