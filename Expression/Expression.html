@@ -15,7 +15,7 @@
 			<div id="output" ></div>
 			<input type="button" value="add an expression" onclick="Javascript:entries.appendChilds(createElements([{'tag':'br'},{'tag':'input','placeholder':'expr','value':'4*(1+2+3)'}], entries.namespaceURI));" /><input type="button" value="evaluate" onclick="Javascript:calc();" />
 			<div id="entries" ></div>
-			<div id="script" style="display:none;" >
+			<script id="script" type="expr/BNF">% <![CDATA[
 /*
  * Simple Arithmetics Grammar
  * ==========================
@@ -24,43 +24,43 @@
  */
 
 {
-  function combine(first, rest, combiners) {
-    var result = first, i;
+	function combine(first, rest, combiners) {
+		var result = first, i;
 
-    for (i = 0; i < rest.length; i++) {
-      result = combiners[rest[i][1]](result, rest[i][3]);
-    }
+		for (i = 0; i < rest.length; i++) {
+			result = combiners[rest[i][1]](result, rest[i][3]);
+		}
 
-    return result;
-  }
+		return result;
+	}
 }
 
 Expression
-  = first:Term rest:(_ ("+" / "-") _ Term)* {
-      return combine(first, rest, {
-        "+": function(left, right) { return left + right; },
-        "-": function(left, right) { return left - right; }
-      });
-    }
+	= first:Term rest:(_ ("+" / "-") _ Term)* {
+			return combine(first, rest, {
+					"+": function(left, right) { return left + right; },
+					"-": function(left, right) { return left - right; }
+			});
+		}
 
 Term
-  = first:Factor rest:(_ ("*" / "/") _ Factor)* {
-      return combine(first, rest, {
-        "*": function(left, right) { return left * right; },
-        "/": function(left, right) { return left / right; }
-      });
-    }
+	= first:Factor rest:(_ ("*" / "/") _ Factor)* {
+			return combine(first, rest, {
+					"*": function(left, right) { return left * right; },
+					"/": function(left, right) { return left / right; }
+			});
+		}
 
 Factor
-  = "(" _ expr:Expression _ ")" { return expr; }
-  / Integer
+	= "(" _ expr:Expression _ ")" { return expr; }
+	/ Integer
 
 Integer "integer"
-  = [0-9]+ { return parseInt(text(), 10); }
+	= [0-9]+ { return parseInt(text(), 10); }
 
 _ "whitespace"
-  = [ \t\n\r]*
-			</div>
+	= [ \t\n\r]*
+%]]></script>
 			<script>
 				var				expressor = PEG.buildParser(document.querySelector('#script').textContent);
 				function		calc(  )
