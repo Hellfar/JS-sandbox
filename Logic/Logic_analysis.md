@@ -40,6 +40,9 @@ y coords:
 - 7 -> keep
 - 8 -> 4
 - 9 -> keep
+- ...
+---
+`[Math.pow(2, Math.floor(inputNumber / 2)) - 1, Math.pow(2, Math.ceil(inputNumber / 2)) - 1]`
 
 ```
 var x = 0

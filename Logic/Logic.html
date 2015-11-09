@@ -84,16 +84,16 @@ function							setKarnaughMap( inputNumber )
 {
 	var								Karnaugh = document.querySelector('#Karnaugh'),
 									body = Karnaugh.createTBody().empty(),
-									head = [body.getCell(0, 1), body.getCell(1, 0)];
-
+									head = [body.getCell(0, 1), body.getCell(1, 0)],
+									range = [Math.pow(2, Math.floor(inputNumber / 2)) - 1, Math.pow(2, Math.ceil(inputNumber / 2)) - 1];
+console.log(inputNumber, range);
 	{
 		for (var i = 0; i < inputNumber; i++)
 		{
 			var						headSection = head[i % 2];
-			
+
 			headSection.insertBefore(document.createTextNode(String.fromCharCode(startChar + i)), (headSection.firstChild || headSection.appendChild(document.createTextNode(""))));
 		}
-		// console.log(Math.pow(2, Math.floor(inputNumber / 2)) - 1, Math.pow(2, Math.ceil(inputNumber / 2)) - 1);
 		// body.getCell(Math.pow(2, Math.floor(inputNumber / 2)), Math.pow(2, Math.ceil(inputNumber / 2)));
 		// body.fillWith(createElements({'tag':'button','child':'0','onclick':'Javascript:this.innerHTML=(this.innerHTML == \'0\')?\'1\':\'0\';'}, body.namespaceURI)[0]);
 	};
