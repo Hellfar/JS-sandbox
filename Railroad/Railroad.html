@@ -68,8 +68,9 @@ NameCall
 	}
 
 String
-	= "\"" str:[^\"]* "\""
+	= str:"(?:\\[^"]|.)*"
 	{
+		console.log(str);
 		return (str.join(""));
 	}
 
@@ -87,6 +88,7 @@ function		functionPool( name, params )
 		'Diagram':
 		function ( params )
 		{
+			console.log(params);
 			var		result =
 			{
 				"tag"					:"svg",
@@ -186,7 +188,7 @@ function		functionPool( name, params )
 			return (result);
 		},
 	};
-	
+
 	if (typeof (funs[name]) == "function")
 		return (funs[name](params));
 	return (null);
