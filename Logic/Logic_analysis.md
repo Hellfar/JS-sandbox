@@ -44,11 +44,19 @@ y coords:
 ---
 `[Math.pow(2, Math.floor(inputNumber / 2)) - 1, Math.pow(2, Math.ceil(inputNumber / 2)) - 1]`
 
+x head setup:
+```
+loop over range[1] with i
+    headTitle(0 i oddLetter(range[1] - i))
+end
+```
+
 ```
 var x = 0
 loop over number with i
     y = x
     if (i % 2)
         x = (x + 1) * 2 - 1
+    end
 end
 ```
