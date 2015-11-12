@@ -15,6 +15,8 @@ coords for Karnaugh map body (values relatives) in function of number of input:
 - 4 -> [3, 3]
 - 5 -> [3, 7]
 - 6 -> [7, 7]
+- ...
+
 ---
 x coords:
 
@@ -28,6 +30,7 @@ x coords:
 - 8 -> keep
 - 9 -> 5
 - ...
+
 ---
 y coords:
 
@@ -41,6 +44,7 @@ y coords:
 - 8 -> 4
 - 9 -> keep
 - ...
+
 ---
 `[Math.pow(2, Math.floor(inputNumber / 2)) - 1, Math.pow(2, Math.ceil(inputNumber / 2)) - 1]`
 
