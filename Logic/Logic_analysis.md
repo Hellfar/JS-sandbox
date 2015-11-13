@@ -49,6 +49,19 @@ y coords:
 `[Math.pow(2, Math.floor(inputNumber / 2)) - 1, Math.pow(2, Math.ceil(inputNumber / 2)) - 1]`
 
 x head setup:
+
+- 1
+	- a
+	- a!
+- 2
+	- a
+	- a!
+- 3
+	- ab
+	- a!b
+	- ab!
+	- a!b!
+
 ```
 loop over range[1] with i
     headTitle(0 i oddLetter(range[1] - i))
