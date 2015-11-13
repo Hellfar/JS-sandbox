@@ -75,7 +75,6 @@ HTMLTableSectionElement.prototype.getRect =
 
 					for (var i = 0; i <= rows; i++)
 					{
-						console.log("i", i);
 						this.getCell(i, cols);
 						table.push(this.getRow(i));
 					}
