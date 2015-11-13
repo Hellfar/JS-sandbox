@@ -68,6 +68,20 @@ HTMLTableSectionElement.prototype.getCellWeak =
 
 					return (row.cells[arguments[1]] || null);
 				};
+HTMLTableSectionElement.prototype.getRect =
+				function			std_HTMLTableSectionElement_getRect( rows, cols )
+				{
+					var				table = [];
+
+					for (var i = 0; i <= rows; i++)
+					{
+						console.log("i", i);
+						this.getCell(i, cols);
+						table.push(this.getRow(i));
+					}
+
+					return (table);
+				}
 HTMLTableSectionElement.prototype.setCell =
 				function			std_HTMLTableSectionElement_setCell(  )
 				{
