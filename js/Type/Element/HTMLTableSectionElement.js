@@ -28,7 +28,7 @@ HTMLTableSectionElement.prototype.getColumn =
 					for (var i = 0; i < l_rows; i++)
 						col.push(this.getCell(i, arguments[0]));
 
-					return (toNodeList(col));
+					return (col);
 				};
 HTMLTableSectionElement.prototype.getColumnWeak =
 				function			std_HTMLTableSectionElement_getColumnWeak(  )
@@ -39,7 +39,7 @@ HTMLTableSectionElement.prototype.getColumnWeak =
 					for (var i = 0; i < l_rows; i++)
 						col.push(this.getCellWeak(i, arguments[0]));
 
-					return (toNodeList(col));
+					return (col);
 				};
 HTMLTableSectionElement.prototype.getCell =
 				function			std_HTMLTableSectionElement_getCell(  )
