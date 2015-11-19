@@ -87,29 +87,21 @@ function							setKarnaughMap( inputNumber )
 
 	if (inputNumber)
 	{
-		var							range = [Math.pow(2, Math.floor(inputNumber / 2)) - 1, Math.pow(2, Math.ceil(inputNumber / 2)) - 1];
+		var							range = [Math.pow(2, Math.floor(inputNumber / 2)) - 1, Math.pow(2, Math.ceil(inputNumber / 2)) - 1],
+									oddHead;
 
 		body.getRect(range[0] + 1, range[1] + 1);
+		oddHead = body.collapse.apply(body, body.getRow(0).cells);
+		oddHead.style.textAlign = "center";
 		{ // colls' head
-			var						oddLetters = "",
-									oddHead = body.getRowWeak(0);
+			var						oddLetters = "";
 
 			for (var i = 0; i <= inputNumber; i++)
 				if (i % 2 === 0)
 					oddLetters += String.fromCharCode(startChar + i);
 			oddLetters = oddLetters.split("").reverse().join("");
-			console.log(oddLetters, oddHead);
-			for (var i = 0; i <= range[0]; i++)
-			{
-				var					binNumbers = (i >>> 0).toString(2).split("").map(function(e){return (~~e);}),
-									l_binNumbers = binNumbers.length,
-									t_head = "";
-
-				console.log(i, binNumbers);
-				for (var e = 0; e < l_binNumbers; e++)
-					t_head += oddLetters[e] + ((binNumbers[e]) ? "!" : "");
-				console.log(t_head.split("").reverse().join(""));
-			}
+			oddHead.appendChild(document.createTextNode(oddLetters));
+			
 			// for (var i = 0; i < inputNumber; i++)
 			// {
 			// 	var						headSection = head[i % 2];
