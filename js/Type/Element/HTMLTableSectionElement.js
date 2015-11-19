@@ -98,6 +98,27 @@ HTMLTableSectionElement.prototype.setCell =
 
 					return (content);
 				};
+HTMLTableSectionElement.prototype.collapse =
+				function			std_HTMLTableSectionElement_collapse(  )
+				{
+					var				receiver = arguments[0],
+									toCollapse = toArray(arguments, 1),
+									l_toCollapse = toCollapse.length;
+
+					for (var i = 0; i < l_toCollapse; i++)
+					{
+						var			childs = toCollapse[i].children,
+									l_childs = childs.length;
+
+						for (var e = 0; e < l_childs; e++)
+							receiver.appendChild(childs[e]);
+						this.removeChild(childs[e]);
+					}
+
+					receiver.colspan = arguments.length;
+
+					return (receiver);
+				};
 HTMLTableSectionElement.prototype.removeCell =
 				function			std_HTMLTableSectionElement_removeCell(  )
 				{
