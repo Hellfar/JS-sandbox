@@ -112,10 +112,10 @@ HTMLTableSectionElement.prototype.collapse =
 
 						for (var e = 0; e < l_childs; e++)
 							receiver.appendChild(childs[e]);
-						this.removeChild(childs[e]);
+						toCollapse[i].parentNode.removeChild(toCollapse[i]);
 					}
 
-					receiver.colspan = arguments.length;
+					receiver.colSpan = arguments.length;
 
 					return (receiver);
 				};
