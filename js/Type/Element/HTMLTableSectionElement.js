@@ -98,8 +98,8 @@ HTMLTableSectionElement.prototype.setCell =
 
 					return (content);
 				};
-HTMLTableSectionElement.prototype.collapse =
-				function			std_HTMLTableSectionElement_collapse(  )
+HTMLTableSectionElement.prototype.collapseCols =
+				function			std_HTMLTableSectionElement_collapseCols(  )
 				{
 					var				receiver = arguments[0],
 									toCollapse = toArray(arguments, 1),

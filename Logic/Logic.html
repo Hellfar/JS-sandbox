@@ -91,7 +91,7 @@ function							setKarnaughMap( inputNumber )
 									oddHead;
 
 		body.getRect(range[0] + 1, range[1] + 1);
-		oddHead = body.collapse.apply(body, body.getRow(0).cells);
+		oddHead = body.collapseCols.apply(body, body.getRow(0).cells);
 		oddHead.style.textAlign = "center";
 		{ // colls' head
 			var						oddLetters = "";
