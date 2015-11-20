@@ -26,7 +26,7 @@
 	{
 		border: 1px solid black;
 	}
-	#Karnaugh td
+	#Karnaugh head
 	{
 		font-size: 0.5em;
 		font-weight: bold;
@@ -91,27 +91,14 @@ function							setKarnaughMap( inputNumber )
 									oddHead;
 
 		body.getRect(range[0] + 1, range[1] + 1);
-		oddHead = body.collapseCols.apply(body, body.getRow(0).cells);
-		oddHead.style.textAlign = "center";
-		{ // colls' head
-			var						oddLetters = "";
+		evenHead = body.collapseRows.apply(body, body.getColumn(0).slice(1));
+		oddHead = body.collapseCols.apply(body, Array.prototype.slice.call(body.getRow(0).cells, 1));
+		evenHead.style.textAlign = oddHead.style.textAlign = "center";
 
-			for (var i = 0; i <= inputNumber; i++)
-				if (i % 2 === 0)
-					oddLetters += String.fromCharCode(startChar + i);
-			oddLetters = oddLetters.split("").reverse().join("");
-			oddHead.appendChild(document.createTextNode(oddLetters));
+		for (var i = 0; i < inputNumber; i++)
+			((i % 2 === 0) ? oddHead : evenHead).innerHTML = String.fromCharCode(startChar + i) + ((i % 2 === 0) ? oddHead : evenHead).innerHTML;
 
-			// for (var i = 0; i < inputNumber; i++)
-			// {
-			// 	var						headSection = head[i % 2];
-			//
-			// 	headSection.insertBefore(document.createTextNode(String.fromCharCode(startChar + i)), (headSection.firstChild || headSection.appendChild(document.createTextNode(""))));
-			// }
-
-			// body.getCell(Math.pow(2, Math.floor(inputNumber / 2)), Math.pow(2, Math.ceil(inputNumber / 2)));
-			// body.fillWith(createElements({'tag':'button','child':'0','onclick':'Javascript:this.innerHTML=(this.innerHTML == \'0\')?\'1\':\'0\';'}, body.namespaceURI)[0]);
-		};
+		
 	}
 }
 </script>
