@@ -10,3 +10,7 @@ Main current lack:
 - json converter (beta)
 - values binder
 - expression parser
+
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/Hellfar/js-sandbox/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
