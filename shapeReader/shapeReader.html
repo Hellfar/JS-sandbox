@@ -2,7 +2,7 @@
 <html>
 	<head>
 		<meta charset="utf-8" />
-		<title>shape shower</title>
+		<title>shape reader</title>
 		<style>
 			.dropzone
 			{
@@ -22,25 +22,67 @@
 			</output>
 
 			<script>
-				function	printFileByType( output, file, fileContent )
+				function	displayFileByType( file )
 				{
 					var		name = escape(file.name),
-							content = fileContent.result;
+							output = document.querySelector("ul").appendChild(document.createElement('li')),
+							reader = new FileReader(),
+							content;
 
 					output.innerHTML = '<strong>'+ name +'</strong> ('+ (file.type || 'n/a') +') - '+ file.size +' bytes, last modified: '+ ((file.lastModifiedDate) ? file.lastModifiedDate.toLocaleDateString() : 'n/a');
 					if (name.match(/\.obj$/))
 					{
 						var	items = {};
-						output.innerHTML += '<br />\n<canvas style="border: 1px solid black;" >\nYour browser doesn\'t appear to support the <code>&lt;canvas&gt;</code> element.\n</canvas>';
 
-						parser(fileContent.result.split("\n"), items);
-						draw(output.querySelector('canvas'), items);
+						reader.onload = (function(f)
+						{
+							return (function (e)
+							{
+								content = e.target.result;
+
+								output.innerHTML += '<br />\n<canvas style="border: 1px solid black;" >\nYour browser doesn\'t appear to support the <code>&lt;canvas&gt;</code> element.\n</canvas>';
+
+								parser(content.split("\n"), items);
+								// draw(output.querySelector('canvas'), items);
+console.log(items);
+							});
+						})(file);
+						reader.readAsText(file);
+
 						console.log("obj file");
 					}
 					else if (name.match(/(\.jpg|\.jpeg|\.gif|\.png)$/))
+					{
+						reader.onload = (function(f)
+						{
+							return (function (e)
+							{
+								content = e.target.result;
+
+								output.innerHTML += '<p><img src="'+ content +'" /></p>';
+							});
+						})(file);
+						reader.readAsDataURL(file);
+
 						console.log("image file");
+					}
+					else if (name.match(/\.html$/))
+					{
+						console.log("html file");
+					}
 					else
-						output.innerHTML += '<pre style="border: 1px solid black;" >'+ content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") +'</pre>';
+					{
+						reader.onload = (function(f)
+						{
+							return (function (e)
+							{
+								content = e.target.result;
+
+								output.innerHTML += '<pre style="border: 1px solid black;" >'+ content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") +'</pre>';
+							});
+						})(file);
+						reader.readAsBinaryString(file);
+					}
 				}
 
 
@@ -111,22 +153,7 @@ console.log(canvas);
 
 					var output = [];
 					for (var i = 0, f; f = files[i]; i++)
-					{
-						var reader = new FileReader();
-
-						reader.onload = (function(file)
-						{
-							return (function (e)
-							{
-								var fileContent = e.target;
-								var list = document.querySelector("ul");
-
-								printFileByType(list.appendChild(document.createElement('li')), file, fileContent);
-							});
-						})(f);
-
-						reader.readAsBinaryString(f);
-					}
+						displayFileByType(f);
 
 					if ( evt.target.className == "dropzone" )
 					{
