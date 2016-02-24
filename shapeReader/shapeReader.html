@@ -20,22 +20,23 @@
 			<div class="dropzone" >Drop shapes here</div>
 			<output>
 			</output>
-			
+
 			<script>
-				var	items = {},
-					groupName = "untitled";
-				
-				function	parser( a_fileContent )
+				var	items = {};
+
+				function	parser( a_fileContent, items )
 				{
-					var		len_a_fileContent = a_fileContent.length,
+					var		groupName = "untitled",
+
+							len_a_fileContent = a_fileContent.length,
 							line;
-					
+
 					for (var i = 0; i < len_a_fileContent; i++)
 					{
 						if ((line = a_fileContent[i].trim()).length && line[0] != '#')
 						{
 							var	tokens = line.split(/ /g).filter(function (e){return (e);});
-							
+
 							switch (tokens[0])
 							{
 								case ('g'):
@@ -45,7 +46,7 @@
 								default :
 									{
 										var	fnct = tokens[0];
-										
+
 										if (typeof (items[groupName][fnct]) == "undefined")
 											items[groupName][fnct] = [];
 										items[groupName][fnct].push(tokens.slice(1));
@@ -55,37 +56,38 @@
 						}
 					}
 				}
-				
+
 				function	handleFileSelect(evt)
 				{
 					evt.stopPropagation();
 					evt.preventDefault();
-					
-					document.getElementsByTagName("output")[0].appendChild(document.createElement('ul'));
-					
+
+					document.querySelector("output").appendChild(document.createElement('ul'));
+
 					var files = evt.dataTransfer.files;
-					
+
 					var output = [];
 					for (var i = 0, f; f = files[i]; i++)
 					{
 						var reader = new FileReader();
-						
+
 						reader.onload = (function(file)
 						{
 							return (function (e)
 							{
 								var f = e.target;
 								var list = document.getElementsByTagName("ul")[0];
-								
-								parser(e.target.result.split("\n"));
-								//~ output.push('<li><strong>', escape(file.name), '</strong> (', file.type || 'n/a', ') - ', file.size, ' bytes, last modified: ', file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a', '<p style="border: 1px solid black;" >', e.target.result.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"), '</p></li>');
-								//~ list.innerHTML = output.join('');
+
+								parser(e.target.result.split("\n"), items);
+								// draw(items);
+								output.push('<li><strong>', escape(file.name), '</strong> (', file.type || 'n/a', ') - ', file.size, ' bytes, last modified: ', file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a', '<pre style="border: 1px solid black;" >', e.target.result.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"), '</pre></li>');
+								list.innerHTML = output.join('');
 							});
 						})(f);
-						
+
 						reader.readAsBinaryString(f);
 					}
-					
+
 					if ( evt.target.className == "dropzone" )
 					{
 						evt.target.style.background = "";
@@ -98,7 +100,7 @@
 					evt.dataTransfer.dropEffect = 'copy';
 				}
 				function	handleDragEnter(evt)
-				{console.log(evt.target);
+				{
 					if ( evt.target.className == "dropzone" )
 					{
 						evt.target.style.background = "AliceBlue";
