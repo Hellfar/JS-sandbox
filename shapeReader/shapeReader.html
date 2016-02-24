@@ -22,7 +22,27 @@
 			</output>
 
 			<script>
-				var	items = {};
+				function	printFileByType( output, file, fileContent )
+				{
+					var		name = escape(file.name),
+							content = fileContent.result;
+
+					output.innerHTML = '<strong>'+ name +'</strong> ('+ (file.type || 'n/a') +') - '+ file.size +' bytes, last modified: '+ ((file.lastModifiedDate) ? file.lastModifiedDate.toLocaleDateString() : 'n/a');
+					if (name.match(/\.obj$/))
+					{
+						var	items = {};
+						output.innerHTML += '<br />\n<canvas style="border: 1px solid black;" >\nYour browser doesn\'t appear to support the <code>&lt;canvas&gt;</code> element.\n</canvas>';
+
+						parser(fileContent.result.split("\n"), items);
+						draw(output.querySelector('canvas'), items);
+						console.log("obj file");
+					}
+					else if (name.match(/(\.jpg|\.jpeg|\.gif|\.png)$/))
+						console.log("image file");
+					else
+						output.innerHTML += '<pre style="border: 1px solid black;" >'+ content.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") +'</pre>';
+				}
+
 
 				function	parser( a_fileContent, items )
 				{
@@ -57,11 +77,34 @@
 					}
 				}
 
+var gl; // A global variable for the WebGL context
+
+function draw( canvas, items )
+{
+console.log(canvas);
+	// // Initialize the GL context
+	// gl = initWebGL(canvas);
+	//
+	// // Only continue if WebGL is available and working
+	//
+	// if (gl) {
+	//   // Set clear color to black, fully opaque
+	//   gl.clearColor(0.0, 0.0, 0.0, 1.0);
+	//   // Enable depth testing
+	//   gl.enable(gl.DEPTH_TEST);
+	//   // Near things obscure far things
+	//   gl.depthFunc(gl.LEQUAL);
+	//   // Clear the color as well as the depth buffer.
+	//   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	// }
+}
+
 				function	handleFileSelect(evt)
 				{
 					evt.stopPropagation();
 					evt.preventDefault();
 
+					document.querySelector("output").innerHTML = "";
 					document.querySelector("output").appendChild(document.createElement('ul'));
 
 					var files = evt.dataTransfer.files;
@@ -75,13 +118,10 @@
 						{
 							return (function (e)
 							{
-								var f = e.target;
-								var list = document.getElementsByTagName("ul")[0];
+								var fileContent = e.target;
+								var list = document.querySelector("ul");
 
-								parser(e.target.result.split("\n"), items);
-								// draw(items);
-								output.push('<li><strong>', escape(file.name), '</strong> (', file.type || 'n/a', ') - ', file.size, ' bytes, last modified: ', file.lastModifiedDate ? file.lastModifiedDate.toLocaleDateString() : 'n/a', '<pre style="border: 1px solid black;" >', e.target.result.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;"), '</pre></li>');
-								list.innerHTML = output.join('');
+								printFileByType(list.appendChild(document.createElement('li')), file, fileContent);
 							});
 						})(f);
 
