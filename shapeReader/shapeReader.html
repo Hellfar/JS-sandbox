@@ -96,11 +96,17 @@ function init() {
 	var onError = function ( xhr ) {
 	};
 
+	// texture
 
 	if (true) // tests
 	{
-		texture = new THREE.TextureLoader().load( 'UV_Grid_Sm.jpg' );
-		texture.needsUpdate = true;
+		var loader = new THREE.ImageLoader( manager );
+		loader.load( 'UV_Grid_Sm.jpg', function ( image ) {
+
+			texture.image = image;
+			texture.needsUpdate = true;
+
+		} );
 	}
 	else
 	{
@@ -151,9 +157,32 @@ function init() {
 		}, onProgress, onError );
 	}
 
+	renderer = new THREE.WebGLRenderer();
+
+	// textures drop
+
+{
+	var dropZone = renderer.domElement;
+	dropZone.addEventListener('dragover', function	(evt)
+	{
+		evt.stopPropagation();
+		evt.preventDefault();
+		evt.dataTransfer.dropEffect = 'copy';
+	}, false);
+	dropZone.addEventListener('drop', function	handleFileSelect(evt)
+	{
+		evt.stopPropagation();
+		evt.preventDefault();
+
+		var file = evt.dataTransfer.files[0];
+
+		texture.image = file;
+		texture.needsUpdate = true;
+	}, false);
+}
+
 	//
 
-	renderer = new THREE.WebGLRenderer();
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	output.appendChild( renderer.domElement );
@@ -288,7 +317,6 @@ function render() {
 
 					var files = evt.dataTransfer.files;
 
-					var output = [];
 					for (var i = 0, f; f = files[i]; i++)
 						displayFileByType(f);
 
