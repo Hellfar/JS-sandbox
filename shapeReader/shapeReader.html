@@ -97,20 +97,29 @@ function init() {
 	};
 
 
-	var loader = new THREE.ImageLoader( manager );
-	loader.load( 'http://threejs.org/examples/textures/UV_Grid_Sm.jpg', function ( image ) {
-
-		texture.image = image;
+	if (true) // tests
+	{
+		texture = new THREE.TextureLoader().load( 'UV_Grid_Sm.jpg' );
 		texture.needsUpdate = true;
+	}
+	else
+	{
+		var loader = new THREE.ImageLoader( manager );
+		loader.load( 'http://threejs.org/examples/textures/UV_Grid_Sm.jpg', function ( image ) {
 
-	} );
+			texture.image = image;
+			texture.needsUpdate = true;
+
+		} );
+	}
 
 	// model
 
 	var loader = new THREE.OBJLoader( manager );
 	if (true) // tests
 	{
-		loader.parse(content).traverse( function ( child ) {
+		object = loader.parse(content);
+		object.traverse( function ( child ) {
 
 			if ( child instanceof THREE.Mesh ) {
 
@@ -119,6 +128,9 @@ function init() {
 			}
 
 		} );
+
+		object.position.y = - 95;
+		scene.add( object );
 	}
 	else {
 		loader.load( 'http://threejs.org/examples/obj/male02/male02.obj', function ( object ) {
