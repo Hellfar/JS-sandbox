@@ -1,4 +1,4 @@
-				function			createElements( elems, ns )
+				function				createElements( elems, ns )
 				{
 					var				a_o = [];
 
@@ -34,12 +34,15 @@
 											o = document.createElementNS(ns, elem.tag);
 										else
 											o = document.createElement(elem.tag);
-										delete (elem.tag);
 										if (typeof (elem.child) != "undefined")
-											o.appendChilds(createElements(elem.child, ns));
-										delete (elem.child);
+										{
+											var	t_childs = createElements(elem.child, ns),
+												t_l_childs = t_childs.length;
+											for(var e = 0; i < t_l_childs; i++)
+												o.appendChild(t_childs[e]);
+										}
 										for (attr in elem)
-											if (elem.hasOwnProperty(attr) && elem[attr])
+											if (elem.hasOwnProperty(attr) && elem[attr] && attr != "tag" && attr != "child")
 												if (attr == "value")
 													o.value = elem[attr];
 												else
@@ -57,7 +60,7 @@
 					return (a_o);
 				}
 
-				function			jsonParams( o, templates )
+				function				jsonParams( o, templates )
 				{
 					var				params = [],
 									props = o.properties(),
@@ -68,9 +71,9 @@
 
 					for (var i = 0; i < l_props; i++)
 					{
-						var		attr = props[i],
-								input = {},
-								templateAttr = templates[attr] || null;
+						var			attr = props[i],
+									input = {},
+									templateAttr = templates[attr] || null;
 
 						switch (typeof (o[attr]))
 						{
@@ -140,7 +143,7 @@
 
 					return (params);
 				}
-				function			paramsJson( params )
+				function				paramsJson( params )
 				{
 					var				element = {},
 									l_params = params.length;
