@@ -1,4 +1,4 @@
-				function				createElements( elems, ns )
+				function			createElements( elems, ns )
 				{
 					var				a_o = [];
 
@@ -38,7 +38,7 @@
 										{
 											var	t_childs = createElements(elem.child, ns),
 												t_l_childs = t_childs.length;
-											for(var e = 0; i < t_l_childs; i++)
+											for(var e = 0; e < t_l_childs; e++)
 												o.appendChild(t_childs[e]);
 										}
 										for (attr in elem)
