@@ -135,7 +135,7 @@
 									}
 								};
 							default:
-								input.implementWeak({'tag':'input','name':attr,'placeholder':attr});
+								input.implementWeak({'tag':'input','name':attr,'class':attr,'placeholder':attr});
 								break;
 						};
 						params.push(input);
